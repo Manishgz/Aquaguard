@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AquaGuard: Smart Water Conservation & Management System</title>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root{--bg:#f1f8f9;--card:rgba(255,255,255,.72);--bd:rgba(15,118,110,.18);--tx:#0f2a33;--mu:#4b6670;--em:#059669;--oc:#0369a1;--wn:#dc2626;--ink:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#08181d;--card:rgba(20,48,58,.65);--bd:rgba(110,231,183,.18);--tx:#e6f4f1;--mu:#9bb8bf;--em:#34d399;--oc:#38bdf8;--wn:#f87171;--ink:#06231c;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#08181d;--card:rgba(20,48,58,.65);--bd:rgba(110,231,183,.18);--tx:#e6f4f1;--mu:#9bb8bf;--em:#34d399;--oc:#38bdf8;--wn:#f87171;--ink:#06231c;color-scheme:dark}
+html{scroll-behavior:smooth;scroll-padding-top:calc(72px + env(safe-area-inset-top,0px))}
+body{background:var(--bg);color:var(--tx);font-family:Georgia,'Times New Roman',serif;line-height:1.6}
+h1,h2,h3,.ui,button,input,select,textarea,nav{font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+.glass{background:var(--card);border:1px solid var(--bd);border-radius:20px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.mu{color:var(--mu)}.em{color:var(--em)}
+.btn{display:inline-block;padding:.75rem 1.4rem;border-radius:999px;font-weight:600;cursor:pointer;border:1px solid var(--bd);background:var(--card);color:var(--tx);transition:transform .15s}
+.btn:hover{transform:translateY(-2px)}.btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.opt:focus-visible{outline:3px solid var(--oc);outline-offset:2px}
+.btn.p{background:linear-gradient(135deg,var(--em),var(--oc));color:var(--ink);border:0}
+.btn.w{background:var(--wn);color:#fff;border:0}
+.fld{width:100%;padding:.7rem .9rem;border-radius:12px;border:1px solid var(--bd);background:var(--bg);color:var(--tx)}
+.opt{display:block;width:100%;text-align:left;padding:.85rem 1rem;border-radius:14px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);cursor:pointer;margin-top:.6rem}
+.opt:hover{border-color:var(--em)}
+.bar{height:8px;border-radius:99px;background:var(--bd);overflow:hidden}.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--em),var(--oc));transition:width .4s}
+.tab{padding:.5rem 1rem;border-radius:999px;border:1px solid var(--bd);cursor:pointer;background:var(--bg);color:var(--tx)}
+.tab[aria-selected=true]{background:var(--em);color:var(--ink);border-color:var(--em)}
+.tank{position:relative;height:200px;border:3px solid var(--oc);border-radius:16px;overflow:hidden;background:var(--bg)}
+.tank>div{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(180deg,var(--oc),var(--em));opacity:.85;transition:height .8s}
+.tg{width:52px;height:28px;border-radius:99px;background:var(--bd);position:relative;cursor:pointer;border:0;flex:none}
+.tg::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--mu);transition:.2s}
+.tg[aria-pressed=true]{background:var(--em)}.tg[aria-pressed=true]::after{left:27px;background:#fff}
+.drop{animation:fl 4s ease-in-out infinite}@keyframes fl{50%{transform:translateY(-12px)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.hid{display:none}
+.tick{overflow:hidden;white-space:nowrap;border-block:1px solid var(--bd);background:var(--card);padding:.55rem 0;font:600 .85rem system-ui,sans-serif}
+.tick>div{display:inline-block;animation:tk 38s linear infinite}.tick span{margin:0 1.4rem}
+@keyframes tk{to{transform:translateX(-50%)}}
+.persona{display:block;text-align:left;cursor:pointer;width:100%}.persona:hover{border-color:var(--em);transform:translateY(-3px)}.persona{transition:transform .15s}
+.step{position:relative}.step .no{font:800 2.2rem system-ui,sans-serif;color:var(--em);opacity:.5;line-height:1}
+details.fq{padding:1rem 1.2rem}details.fq summary{cursor:pointer;font:600 1rem system-ui,sans-serif;list-style:none;display:flex;justify-content:space-between;gap:1rem}
+details.fq summary::after{content:"+";color:var(--em);font-weight:800}details.fq[open] summary::after{content:"\2212"}
+.act{display:flex;gap:.7rem;align-items:flex-start;width:100%;text-align:left;padding:.7rem .9rem;border-radius:14px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);cursor:pointer;font:14px/1.4 system-ui,sans-serif}
+.act i{flex:none;width:22px;height:22px;border-radius:7px;border:2px solid var(--em);display:grid;place-items:center;font-style:normal;color:var(--ink);font-weight:800}
+.act[aria-pressed=true]{border-color:var(--em)}.act[aria-pressed=true] i{background:var(--em)}
+.act:focus-visible{outline:3px solid var(--oc);outline-offset:2px}
+#bhim{position:fixed;left:16px;bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:55;width:min(380px,calc(100vw - 32px));height:min(520px,70vh);display:none;flex-direction:column;background:var(--bg);border:1px solid var(--bd);border-radius:20px;box-shadow:0 16px 48px rgba(0,0,0,.3);overflow:hidden}
+#bhim.on{display:flex}
+#bi{min-width:0}
+#bmic[aria-pressed=true]{background:var(--wn);color:#fff;border-color:var(--wn)}
+#bmsgs{flex:1;overflow-y:auto;padding:.8rem;display:flex;flex-direction:column;gap:.5rem}
+.bm{max-width:88%;padding:.55rem .8rem;border-radius:16px;font:14px/1.45 system-ui,sans-serif;white-space:pre-wrap;word-wrap:break-word}
+.bm.b{align-self:flex-start;background:var(--card);border:1px solid var(--bd)}
+.bm.u{align-self:flex-end;background:linear-gradient(135deg,var(--em),var(--oc));color:var(--ink)}
+.chip{font:12px system-ui,sans-serif;padding:.3rem .6rem;border-radius:99px;border:1px solid var(--bd);background:var(--card);color:var(--tx);cursor:pointer}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:60;display:none;align-items:center;justify-content:center;padding:1rem}
+#modal.on{display:flex}
+</style>
+</head>
+<body>
+<nav class="sticky top-0 z-40 glass !rounded-none" style="top:env(safe-area-inset-top,0px)">
+ <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+  <a href="#top" class="font-bold text-lg">💧 AquaGuard</a>
+  <div class="hidden md:flex gap-3 lg:gap-4 text-xs lg:text-sm font-medium">
+   <a href="#quiz">Quiz</a><a href="#wr">Water Q&amp;A</a><a href="#be">Benefits &amp; Effects</a><a href="#advisor">Advisor</a><a href="#map">India Map</a><a href="#tech">Smart Tech</a><a href="#in3d">3D India</a><a href="#jh">Jharkhand 3D</a><a href="#iot">Live IoT</a><a href="#limits">Challenges</a><a href="#campaign">Campaign</a><a href="#community">Community</a><a href="#faq">FAQ</a>
+  </div>
+  <button class="btn p !py-2 !px-4 text-sm" onclick="openModal()">Pitch guide</button>
+ </div>
+</nav>
+
+<header id="top" class="max-w-6xl mx-auto px-4 pt-14 pb-10 text-center">
+ <div class="text-6xl drop" aria-hidden="true">💧</div>
+ <p class="ui em font-semibold mt-2">Boond-Boond Bachao, Kal Ko Sajao!</p>
+ <h1 class="text-4xl sm:text-6xl font-extrabold mt-3 leading-tight">Every Drop Counts.<br>Protect Today, Sustain Tomorrow.</h1>
+ <p class="mu max-w-2xl mx-auto mt-4 text-lg">AquaGuard pairs low-cost IoT sensors with community reporting to find leaks early, cut household waste and make saving water a habit.</p>
+ <div class="flex flex-wrap justify-center gap-3 mt-7">
+  <a href="#quiz" class="btn p">Take Water Quiz</a><a href="#iot" class="btn">Live IoT Dashboard</a><a href="#campaign" class="btn">Join the Campaign</a><a href="#pledge" class="btn">Pledge Now</a>
+ </div>
+ <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-10">
+  <div class="glass p-5"><div class="text-3xl font-bold em ui" id="s1">0</div><div class="mu text-sm">Litres wasted daily by leaks per city block*</div></div>
+  <div class="glass p-5"><div class="text-3xl font-bold em ui" id="s2">0</div><div class="mu text-sm">Litres saved by AquaGuard users</div></div>
+  <div class="glass p-5"><div class="text-3xl font-bold em ui" id="s3">0</div><div class="mu text-sm">Active sensors online</div></div>
+ </div>
+ <p class="mu text-xs mt-2">*Demo figures for illustration.</p>
+</header>
+
+
+<div class="tick" aria-hidden="true"><div><span>💧 Jal Hai To Kal Hai</span><span>🌧️ Catch the rain, recharge the ground</span><span>🔧 Fix a leak today</span><span>🌱 Drip, mulch, save</span><span>🤝 Pledge. Report. Repeat.</span><span>💧 Jal Hai To Kal Hai</span><span>🌧️ Catch the rain, recharge the ground</span><span>🔧 Fix a leak today</span><span>🌱 Drip, mulch, save</span><span>🤝 Pledge. Report. Repeat.</span></div></div>
+
+<section id="who" class="max-w-6xl mx-auto px-4 py-10">
+ <p class="ui em font-semibold text-sm">Bolo Dost, Aap Kaun?</p>
+ <h2 class="text-3xl font-bold">Who are you?</h2>
+ <p class="mu mb-4">Pick one and we jump to the advisor with your answer filled in.</p>
+ <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-4" id="persons"></div>
+</section>
+
+<section id="how" class="max-w-6xl mx-auto px-4 py-10">
+ <h2 class="text-3xl font-bold">How it works</h2>
+ <p class="mu mb-4">From first habit check to a community that saves water together.</p>
+ <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4" id="hsteps"></div>
+</section>
+
+<!-- QUIZ -->
+<section id="quiz" class="max-w-3xl mx-auto px-4 py-10">
+ <h2 class="text-3xl font-bold">Water footprint quiz</h2>
+ <p class="mu mb-4">Six questions. Get your score, tailored tips and a shareable badge.</p>
+ <div class="glass p-6" id="qbox"></div>
+</section>
+
+<section id="wr" class="max-w-3xl mx-auto px-4 py-10">
+ <h2 class="text-3xl font-bold">Water resources challenge</h2>
+ <p class="mu mb-4"><span id="wn">50</span> questions on water resources. Play a quick round of 10 or take the full test.</p>
+ <div class="glass p-6" id="wbox"></div>
+</section>
+
+<!-- IOT -->
+<section id="iot" class="max-w-6xl mx-auto px-4 py-10">
+ <h2 class="text-3xl font-bold">Live IoT monitor <span class="text-sm mu font-normal ui">(simulated)</span></h2>
+ <div class="grid md:grid-cols-3 gap-4 mt-4">
+  <div class="glass p-5">
+   <div class="flex justify-between ui"><b>Rooftop tank</b><b id="lvl" class="em">70%</b></div>
+   <div class="tank mt-3"><div id="fill" style="height:70%"></div></div>
+  </div>
+  <div class="glass p-5">
+   <div class="ui"><b>Flow rate</b></div>
+   <div class="text-4xl font-bold ui mt-1"><span id="flow">12.0</span> <span class="text-base mu">L/min</span></div>
+   <svg viewBox="0 0 200 60" class="w-full mt-3" role="img" aria-label="Flow rate history"><polyline id="spark" fill="none" stroke="var(--oc)" stroke-width="2" points=""/></svg>
+   <div class="mu text-sm mt-2">Status: <b id="stat" class="em">Normal</b></div>
+  </div>
+  <div class="glass p-5 ui">
+   <b>Controls</b>
+   <div class="flex items-center justify-between mt-3"><span>Auto leak shut-off</span><button class="tg" id="auto" aria-pressed="true" aria-label="Toggle auto shut-off"></button></div>
+   <div class="flex items-center justify-between mt-3"><span>Leak sensor armed</span><button class="tg" id="arm" aria-pressed="true" aria-label="Toggle leak sensor"></button></div>
+   <button class="btn w mt-4 w-full" id="simLeak">Simulate pipe leak</button>
+   <button class="btn mt-2 w-full" id="fix">Mark leak repaired</button>
+  </div>
+ </div>
+ <div class="glass p-5 mt-4"><b class="ui">Alert log</b><ul id="log" class="mt-2 text-sm space-y-1 mu"><li>System online. Monitoring started.</li></ul></div>
+</section>
+
+<section id="be" class="max-w-6xl mx-auto px-4 py-10">
+ <h2 class="text-3xl font-bold">Benefits and effects of water resources</h2>
+ <p class="mu mb-4">Water supports life and growth when managed well, and causes serious harm when it is wasted, polluted or scarce.</p>
+ <div class="flex flex-wrap gap-2 mb-4" role="tablist" id="betabs"></div>
+ <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4" id="becards" role="tabpanel"></div>
+ <p class="mu text-sm mt-4" id="benote"></p>
+</section>
+
+<section id="advisor" class="max-w-5xl mx-auto px-4 py-10">
+ <h2 class="text-3xl font-bold">Water resource advisor</h2>
+ <p class="mu mb-4">Tell us your situation and goal. Get practical suggestions for using and protecting your water resources.</p>
+ <form id="adf" class="glass p-5 grid sm:grid-cols-2 gap-3" novalidate>
+  <label class="ui text-sm">Who are you?<select id="a1" class="fld mt-1"><option value="">Select…</option><option value="home">Household (house)</option><option value="apt">Apartment or society</option><option value="farm">Farm or farmer</option><option value="school">School or college</option><option value="biz">Business or industry</option></select></label>
+  <label class="ui text-sm">What is your main goal?<select id="a2" class="fld mt-1"><option value="">Select…</option><option value="drink">Safe drinking water</option><option value="garden">Gardening or farming</option><option value="clean">Cleaning and flushing</option><option value="bill">Lower water bill</option><option value="ground">Raise groundwater or fix scarcity</option></select></label>
+  <label class="ui text-sm">Your main water source?<select id="a3" class="fld mt-1"><option value="">Select…</option><option value="muni">Municipal supply</option><option value="bore">Borewell or handpump</option><option value="tanker">Tanker supply</option><option value="river">River, pond or canal</option></select></label>
+  <label class="ui text-sm">Space you have?<select id="a4" class="fld mt-1"><option value="">Select…</option><option value="roof">Rooftop</option><option value="land">Open land or yard</option><option value="small">Only a balcony or small space</option></select></label>
+  <div class="sm:col-span-2"><div id="ade" class="text-sm mb-2" style="color:var(--wn)" role="alert"></div><button class="btn p" type="submit">Get my suggestions</button></div>
+ </form>
+ <div id="adout" class="mt-5"></div>
+</section>
+
+<section id="map" class="max-w-6xl mx-auto px-4 py-10">
+ <h2 class="text-3xl font-bold">Water conservation success stories across India</h2>
+ <p class="mu mb-4">Tap a green pin to see where communities and governments have conserved water and what improved.</p>
+ <div class="flex flex-wrap gap-2 mb-4" id="mfil" role="tablist"></div>
+ <div class="grid md:grid-cols-2 gap-6 items-start">
+  <div class="glass p-4"><svg id="mapsvg" viewBox="0 0 600 630" class="w-full mx-auto" style="max-height:600px" role="group" aria-label="Map of India with water conservation success stories"></svg></div>
+  <div><div class="glass p-5" id="mdet" aria-live="polite"></div><div class="flex flex-wrap gap-2 mt-4" id="mlist"></div></div>
+ </div>
+ <p class="mu text-xs mt-3">The outline is a simplified sketch, not to scale and not an official boundary map. Stories come from public case studies and reports, and results vary by year and rainfall. Verify before citing.</p>
+</section>
+
+<section id="in3d" class="max-w-6xl mx-auto px-4 py-10">
+ <h2 class="text-3xl font-bold">Water conservation in India, in 3D</h2>
+ <p class="mu mb-4">Two views. Spin the India map and tap a pin to see a conservation success story, or watch how rain on one roof becomes groundwater (or runs away).</p>
+ <div class="flex flex-wrap gap-2 mb-4" role="tablist"><button class="tab ui" id="t3a" role="tab" aria-selected="true">🗺️ India success map</button><button class="tab ui" id="t3b" role="tab" aria-selected="false">🏠 Rain to recharge model</button></div>
+ <div id="p3a" class="grid md:grid-cols-5 gap-4 items-start">
+  <div class="glass p-3 md:col-span-3"><div id="ic" style="height:min(440px,90vw);touch-action:none;cursor:grab" role="img" aria-label="3D map of India with pins for water conservation success stories"></div><div class="mt-2 flex gap-2"><button class="btn !py-2 text-sm ui" id="irot" aria-pressed="true">⏸ Auto-rotate</button></div></div>
+  <div class="md:col-span-2"><div class="glass p-5" id="icd" aria-live="polite"></div><div class="flex flex-wrap gap-2 mt-3" id="icl"></div></div>
+ </div>
+ <div id="p3b" class="hid">
+  <div class="flex flex-wrap gap-2 mb-3 ui"><button class="btn p !py-2 text-sm" id="hOn" aria-pressed="true">✅ With harvesting and recharge</button><button class="btn !py-2 text-sm" id="hOff" aria-pressed="false">❌ Without</button><button class="btn !py-2 text-sm" id="hRain" aria-pressed="true">🌧️ Monsoon rain: on</button></div>
+  <div class="glass p-3"><div id="hc" style="height:min(440px,90vw);touch-action:none;cursor:grab" role="img" aria-label="3D model of a house, tank, recharge pit and underground aquifer"></div></div>
+  <div class="grid sm:grid-cols-3 gap-3 mt-3 ui"><div class="glass p-4"><div class="mu text-xs">Underground water level</div><div class="text-3xl font-bold em" id="hs1">70%</div></div><div class="glass p-4"><div class="mu text-xs">Roof rain kept on site</div><div class="text-3xl font-bold em" id="hs2">~70%</div></div><div class="glass p-4"><div class="mu text-xs">Borewell</div><div class="text-xl font-bold" id="hs3">Healthy</div></div></div>
+ </div>
+ <p class="mu text-xs mt-3">Both views are simplified teaching models, not surveys. Pin locations are approximate, the outline is a sketch, and the harvesting percentages are illustrative. Real results depend on rainfall, soil and local rules.</p>
+</section>
+
+<section id="jh" class="max-w-5xl mx-auto px-4 py-10">
+ <h2 class="text-3xl font-bold">Jharkhand groundwater in 3D</h2>
+ <p class="mu mb-4">Each glass tank shows how much of the groundwater that can be safely extracted each year is actually being used. A lower fill means more water kept for the future. Drag to rotate.</p>
+ <div class="glass p-3"><div id="jcv" style="height:min(420px,85vw);touch-action:none;cursor:grab" role="img" aria-label="3D tanks showing groundwater extraction in West Singhbhum, the Jharkhand average and Dhanbad"></div></div>
+ <div class="grid sm:grid-cols-3 gap-3 mt-4" id="jcards"></div>
+ <div class="mt-3"><button class="btn" id="jrot" aria-pressed="true">⏸ Auto-rotate</button></div>
+ <p class="mu text-xs mt-3">Measure: stage of groundwater extraction, the share of the yearly extractable groundwater that is used. Categories: Safe up to 70%, Semi-critical 70–90%. Figures are from Central Ground Water Board assessments of Jharkhand: the 2022 district extremes, and the state average of about 29–31% in recent assessments. Only these are shown because they are the figures confirmed from the source. All districts are listed in the CGWB reports.</p>
+</section>
+
+<section id="tech" class="max-w-6xl mx-auto px-4 py-10">
+ <h2 class="text-3xl font-bold">How smart technology shows the way to save water</h2>
+ <p class="mu mb-4">Pick a technology to see the problem it solves and how it works: sense, analyse, act, result.</p>
+ <div class="flex flex-wrap gap-2 mb-4" id="sttabs" role="tablist"></div>
+ <div class="glass p-6" id="stbody" role="tabpanel" aria-live="polite"></div>
+</section>
+
+<!-- LIMITS -->
+<section id="limits" class="max-w-4xl mx-auto px-4 py-10">
+ <h2 class="text-3xl font-bold">Limitations and how we address them</h2>
+ <div class="flex flex-wrap gap-2 my-4" role="tablist" id="ltabs"></div>
+ <div class="glass p-6" id="lbody" role="tabpanel"></div>
+ <p class="mu text-sm mt-3">We list these limits openly so judges and users know what the prototype does today and what a real rollout needs.</p>
+ <h3 class="text-2xl font-bold mt-10">Limitations of this website</h3>
+ <p class="mu text-sm mb-3">What this demo site cannot do yet, and what a full version would add.</p>
+ <div class="grid sm:grid-cols-2 gap-4" id="wl"></div>
+</section>
+
+<!-- COMMUNITY -->
+<section id="campaign" class="max-w-6xl mx-auto px-4 py-10">
+ <p class="ui em font-semibold text-sm">#EveryDropCounts</p>
+ <h2 class="text-3xl font-bold">Water awareness campaign</h2>
+ <p class="mu mb-5 max-w-3xl">A 4-week campaign anyone can run in a school, society, village or workplace. Learn the four ideas, take the 10 actions, make a poster, spread the word and plan your own drive.</p>
+ <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4" id="pillars"></div>
+
+ <div class="grid lg:grid-cols-2 gap-6 mt-8">
+  <div class="glass p-5">
+   <div class="flex justify-between items-center ui"><h3 class="text-xl font-semibold">My 10 water actions</h3><b id="actn" class="em">0/10</b></div>
+   <div class="bar my-3"><i id="actb" style="width:0%"></i></div>
+   <div class="grid gap-2" id="acts"></div>
+   <p class="text-sm mt-3 ui" id="actm" aria-live="polite"></p>
+  </div>
+  <div class="glass p-5">
+   <h3 class="text-xl font-semibold ui">Make your campaign poster</h3>
+   <div class="grid sm:grid-cols-2 gap-3 mt-3 ui text-sm">
+    <label>Your name or group<input id="pon" class="fld mt-1" maxlength="30" placeholder="e.g. Class 8B"></label>
+    <label>Slogan<select id="pos" class="fld mt-1"><option>Jal Hai To Kal Hai</option><option>Every Drop Counts</option><option>Boond-Boond Bachao, Kal Ko Sajao</option><option>Fix the leak, save the lake</option><option>Catch the rain, recharge the ground</option></select></label>
+   </div>
+   <canvas id="pcv" width="600" height="750" class="w-full mt-3 rounded-xl" style="max-height:420px;object-fit:contain;background:var(--bg)" role="img" aria-label="Campaign poster preview"></canvas>
+   <button class="btn p mt-3" id="pdl">Download poster (PNG)</button>
+   <div id="pdm" class="text-sm em mt-2 ui" aria-live="polite"></div>
+  </div>
+ </div>
+
+ <div class="grid lg:grid-cols-2 gap-6 mt-6">
+  <div class="glass p-5">
+   <h3 class="text-xl font-semibold ui">Spread the word</h3>
+   <textarea id="shm" class="fld mt-3" rows="4" maxlength="400">I'm joining the #EveryDropCounts water awareness campaign. Fix leaks fast, catch rain, reuse water and tell three people. Join me: take the pledge on AquaGuard!</textarea>
+   <div class="flex flex-wrap gap-2 mt-3"><button class="btn p" id="shc">Copy message</button><a class="btn" id="shw" target="_blank" rel="noopener">Share on WhatsApp</a><button class="btn" id="shn">Share…</button></div>
+   <div id="shs" class="text-sm em mt-2 ui" aria-live="polite"></div>
+  </div>
+  <div class="glass p-5">
+   <h3 class="text-xl font-semibold ui">What could your campaign save?</h3>
+   <p class="mu text-sm">A rough estimate. We assume each reached household saves about 30 litres a day by fixing leaks and small habits (an illustrative figure).</p>
+   <div class="grid grid-cols-2 gap-3 mt-3 ui text-sm"><label>Households reached<input id="eh" type="number" min="1" max="100000" value="100" class="fld mt-1"></label><label>Days<input id="ed" type="number" min="1" max="365" value="30" class="fld mt-1"></label></div>
+   <div class="text-3xl font-extrabold em ui mt-3" id="eo">90,000 L</div><div class="mu text-sm" id="et"></div>
+  </div>
+ </div>
+
+ <h3 class="text-2xl font-bold mt-10">4-week plan</h3>
+ <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-3" id="wk"></div>
+
+ <h3 class="text-2xl font-bold mt-10">Run it where you are</h3>
+ <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-3" id="runs"></div>
+
+ <div class="grid lg:grid-cols-2 gap-6 mt-8">
+  <div>
+   <h3 class="text-xl font-semibold ui">Register your campaign</h3>
+   <form id="cf" class="glass p-5 mt-3 space-y-3" novalidate>
+    <select id="cty" class="fld"><option>School drive</option><option>Society / apartment audit</option><option>Village gram sabha</option><option>Workplace challenge</option><option>Street rally</option></select>
+    <input id="cpl" class="fld" maxlength="60" placeholder="Place (school, society, village)">
+    <input id="cdt" type="date" class="fld" aria-label="Campaign start date">
+    <div id="cfe" class="text-sm" style="color:var(--wn)" role="alert"></div>
+    <button class="btn p w-full" type="submit">Add to campaign list</button>
+   </form>
+   <ul id="cl" class="mt-3 space-y-2"></ul>
+  </div>
+  <div class="glass p-5">
+   <h3 class="text-xl font-semibold ui">Days to remember</h3>
+   <ul class="mt-3 space-y-2 text-sm"><li><b class="em ui">2 Feb</b> World Wetlands Day: protect ponds, lakes and marshes.</li><li><b class="em ui">22 Mar</b> World Water Day: the best day to launch a campaign.</li><li><b class="em ui">Monsoon, Jun to Sep</b> Catch the rain: build recharge pits and clean roof gutters before it arrives.</li></ul>
+   <p class="mu text-sm mt-3">Government programmes you can connect with: Jal Jeevan Mission (tap water for rural homes), Namami Gange and the Amrit Sarovar mission for reviving water bodies. Check official sites for current details.</p>
+  </div>
+ </div>
+</section>
+
+<section id="community" class="max-w-6xl mx-auto px-4 py-10 grid md:grid-cols-2 gap-6">
+ <div>
+  <h2 class="text-3xl font-bold">Report a leak</h2>
+  <form id="lf" class="glass p-5 mt-4 space-y-3" novalidate>
+   <select id="lt" class="fld"><option>Pipe leak</option><option>Overflowing tank</option><option>Broken tap</option><option>Water wastage</option></select>
+   <input id="ll" class="fld" placeholder="Location (street, landmark, area)" maxlength="80">
+   <textarea id="ld" class="fld" rows="2" placeholder="What did you see? (optional)" maxlength="160"></textarea>
+   <div id="le" class="text-sm" style="color:var(--wn)" role="alert"></div>
+   <button class="btn p w-full" type="submit">Submit report</button>
+  </form>
+  <ul id="rl" class="mt-4 space-y-2"></ul>
+ </div>
+ <div id="pledge">
+  <h2 class="text-3xl font-bold">Take the pledge</h2>
+  <form id="pf" class="glass p-5 mt-4 space-y-3" novalidate>
+   <p class="mu text-sm">I pledge to fix leaks quickly, use water wisely and encourage others to do the same.</p>
+   <input id="pn" class="fld" placeholder="Your full name" maxlength="40">
+   <label class="flex gap-2 text-sm"><input type="checkbox" id="pc"> I make this pledge sincerely.</label>
+   <div id="pe" class="text-sm" style="color:var(--wn)" role="alert"></div>
+   <button class="btn p w-full" type="submit">Pledge now</button>
+  </form>
+  <div id="cert" class="glass p-6 mt-4 text-center hid" style="border:2px solid var(--em)">
+   <div class="text-4xl">🏅</div><div class="ui mu text-sm">Official Water Conservation Pledge</div>
+   <div class="text-2xl font-bold my-1" id="cn"></div><div class="mu text-sm" id="cd"></div>
+  </div>
+  <p class="mu mt-3 ui text-sm"><b id="pcount" class="em">1,248</b> people have pledged.</p>
+ </div>
+</section>
+
+<section id="faq" class="max-w-3xl mx-auto px-4 py-10">
+ <h2 class="text-3xl font-bold">Questions, answered</h2>
+ <div class="space-y-3 mt-4" id="faql"></div>
+</section>
+
+<footer class="text-center mu text-sm py-10 px-4"><div>AquaGuard · Hackathon prototype · Simulated data</div><p class="max-w-2xl mx-auto text-xs mt-2">AquaGuard is a student prototype, not a government body or water utility. Figures are illustrative or drawn from public reports, so please verify before relying on them. Bhim gives general tips, not professional engineering or health advice.</p></footer>
+
+<button class="btn p fixed ui" style="right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.25)" onclick="openModal()">🏆 Pitch Guide</button>
+
+<button class="btn p fixed ui" id="bhimBtn" style="left:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.25)" aria-expanded="false" aria-controls="bhim">🤖 Ask Bhim</button>
+<div id="bhim" role="dialog" aria-label="Bhim AI assistant">
+ <div class="flex items-center justify-between px-4 py-3 ui" style="background:linear-gradient(135deg,var(--em),var(--oc));color:var(--ink)">
+  <div><b>🤖 Bhim</b><div class="text-xs" style="opacity:.85">AquaGuard AI water assistant</div></div>
+  <div class="flex items-center"><button id="bsp" type="button" class="text-lg px-2" aria-pressed="false" aria-label="Read replies aloud" title="Read replies aloud">🔇</button><button id="bx" aria-label="Close Bhim" class="text-lg px-2">✕</button></div>
+ </div>
+ <div id="bmsgs" aria-live="polite"></div>
+ <div id="bchips" class="flex flex-wrap gap-2 px-3 pb-2"></div>
+ <form id="bf" class="flex gap-2 p-3" style="border-top:1px solid var(--bd)">
+  <input id="bi" class="fld" placeholder="Ask Bhim about water…" maxlength="300" autocomplete="off" aria-label="Message to Bhim">
+  <button type="button" class="btn !px-3" id="bmic" aria-pressed="false" aria-label="Speak to Bhim" title="Speak to Bhim">🎤</button><button type="button" class="btn !px-3 ui text-sm" id="blang" aria-label="Voice language: English" title="Voice language">EN</button><button class="btn p !px-4" type="submit" aria-label="Send">➤</button>
+ </form>
+</div>
+
+<div id="modal" role="dialog" aria-modal="true" aria-labelledby="mt">
+ <div class="glass p-6 max-w-2xl w-full max-h-[85vh] overflow-y-auto" style="background:var(--bg)">
+  <div class="flex justify-between items-start"><h2 id="mt" class="text-2xl font-bold">Hackathon pitch guide</h2><button class="btn !py-1 !px-3" onclick="closeModal()" aria-label="Close">✕</button></div>
+  <div class="grid sm:grid-cols-2 gap-3 mt-4 text-sm">
+   <div class="glass p-4"><b class="ui em">USP</b><p>Sensors, behaviour change and community reporting in one low-cost loop, not just hardware.</p></div>
+   <div class="glass p-4"><b class="ui em">Scalability</b><p>Household → apartment → ward → city. Works offline-first with LoRa/SMS fallback for rural areas.</p></div>
+   <div class="glass p-4"><b class="ui em">Tech stack</b><p>HTML, CSS, Tailwind, vanilla JS, ultrasonic and flow sensors (ESP32), MQTT, AI anomaly detection for leaks.</p></div>
+   <div class="glass p-4"><b class="ui em">Impact</b><p>Cuts leak losses, builds habits through the quiz and pledge, and gives local bodies live data to act on.</p></div>
+  </div>
+  <p class="mu text-sm mt-4"><b>Demo order (3 min):</b> hero stats → quiz → trigger a leak on the IoT panel → file a community report → challenges → pledge.</p>
+ </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>{const d=document.createElement('div');d.textContent=s;return d.innerHTML};
+const fmt=n=>Math.round(n).toLocaleString('en-US');
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* Hero counters */
+function count(id,to,ms=1800){const el=$(id);if(reduce){el.textContent=fmt(to);return}let t0=null;(function f(t){t0=t0||t;const p=Math.min((t-t0)/ms,1);el.textContent=fmt(to*(1-Math.pow(1-p,3)));p<1&&requestAnimationFrame(f)})(performance.now())}
+count('s1',48200);count('s2',1250000);count('s3',326);
+let sensors=326,saved=1250000;
+setInterval(()=>{saved+=Math.floor(Math.random()*40+10);$('s2').textContent=fmt(saved);if(Math.random()<.3){sensors+=Math.random()<.5?1:-1;$('s3').textContent=sensors}},2500);
+
+/* Quiz */
+const Q=[
+ {q:'How long is your typical shower?',o:[['Under 5 minutes',3,''],['5–10 minutes',2,'Try a 5-minute shower timer.'],['10–20 minutes',1,'Shorter showers can save 40+ litres each.'],['Over 20 minutes',0,'Cut showers to 5–7 minutes: it is the biggest single saving.']]},
+ {q:'How do you wash dishes?',o:[['Basin or full dishwasher loads',3,''],['Tap off while scrubbing',2,'Rinse in a basin, not under a running tap.'],['Tap runs most of the time',1,'Running tap uses ~10 L/min. Fill a basin instead.'],['Dishwasher half-loaded daily',0,'Run the dishwasher only when it is full.']]},
+ {q:'How do you water the garden or plants?',o:[['Rain or reused water',3,''],['Early morning, drip or can',2,'Keep watering to early morning or evening.'],['Hose at midday',1,'Midday watering evaporates fast. Shift to early morning.'],['No garden',2,'']]},
+ {q:'How often do you check for leaks?',o:[['Monthly, with a meter check',3,''],['When I notice something',1,'Check your meter when no water is in use. If it moves, you have a leak.'],['Never',0,'A dripping tap wastes up to 5,000 litres a year. Start monthly checks.'],['I use a smart sensor',3,'']]},
+ {q:'What do you do while brushing teeth or shaving?',o:[['Tap off',3,''],['Tap on low',1,'Turn the tap off while brushing to save ~6 L a day.'],['Tap runs the whole time',0,'Turn it off while you brush: it saves ~12 L each time.']]},
+ {q:'How do you wash clothes and your car?',o:[['Full loads, bucket car wash',3,''],['Full loads, hose car wash',1,'Use a bucket for the car: it saves up to 300 L.'],['Half loads, often',0,'Wait for full loads or use the eco cycle.']]}
+];
+const LV=[[80,'Water Hero','🌊','You are a role model. Inspire your neighbours.'],[55,'Water Guardian','🛡️','Strong habits. A few tweaks will take you further.'],[30,'Water Learner','🌱','Good start. Small changes add up fast.'],[0,'Drip Alert','💧','Big savings are waiting. Start with the tips below.']];
+let qi=0,ans=[],res=null;
+function renderQ(){
+ const b=$('qbox');
+ if(qi>=Q.length)return renderR();
+ const c=Q[qi];
+ b.innerHTML=`<div class="ui mu text-sm">Question ${qi+1} of ${Q.length}</div><div class="bar my-2"><i style="width:${qi/Q.length*100}%"></i></div><h3 class="text-xl font-semibold">${c.q}</h3>`+
+ c.o.map((o,i)=>`<button class="opt ui" data-i="${i}">${o[0]}</button>`).join('')+`<div id="fb" class="mt-3 text-sm em ui" aria-live="polite"></div>`;
+ b.querySelectorAll('.opt').forEach(btn=>btn.onclick=()=>{
+  const o=c.o[+btn.dataset.i];ans[qi]=o;
+  b.querySelectorAll('.opt').forEach(x=>x.disabled=true);btn.style.borderColor='var(--em)';
+  $('fb').textContent=o[2]||'Great habit. Keep it up!';
+  setTimeout(()=>{qi++;renderQ()},o[2]?1500:900)});
+}
+function renderR(){
+ const pts=ans.reduce((a,o)=>a+o[1],0),score=Math.round(pts/(Q.length*3)*100),lv=LV.find(l=>score>=l[0]);
+ const tips=[...new Set(ans.filter(o=>o[2]&&o[1]<=1).map(o=>o[2]))];
+ const litres=Math.round((100-score)*3.2);
+ res={score,name:lv[1],emoji:lv[2],litres};
+ $('qbox').innerHTML=`<div class="text-center"><div class="text-5xl">${lv[2]}</div><div class="ui mu text-sm">Your Water Footprint Score</div><div class="text-6xl font-extrabold em ui">${score}<span class="text-xl mu">/100</span></div><h3 class="text-2xl font-bold">${lv[1]}</h3><p class="mu">${lv[3]}</p></div>
+ <div class="bar my-4"><i style="width:${score}%"></i></div>
+ <p class="ui text-sm mu">You could save about <b class="em">${litres} litres a day</b> with small changes.</p>
+ <h4 class="font-semibold ui mt-4">Your tips</h4>
+ <ul class="list-disc pl-5 mt-1">${(tips.length?tips:['You are already doing great. Report leaks in your community to help others.']).map(t=>`<li>${esc(t)}</li>`).join('')}</ul>
+ <div class="flex flex-wrap gap-2 mt-5"><button class="btn p" id="shr">Share result</button><button class="btn" id="dl">Download badge</button><button class="btn" id="rt">Retake quiz</button></div><div id="sm" class="text-sm em mt-2 ui" aria-live="polite"></div>`;
+ $('rt').onclick=()=>{qi=0;ans=[];renderQ()};
+ $('shr').onclick=async()=>{const t=`I scored ${score}/100 on the AquaGuard Water Footprint Quiz and earned the ${lv[1]} badge ${lv[2]}. Every drop counts!`;
+  try{if(navigator.share){await navigator.share({title:'AquaGuard',text:t})}else{await navigator.clipboard.writeText(t);$('sm').textContent='Result copied to clipboard.'}}catch(e){$('sm').textContent='Copy this: '+t}};
+ $('dl').onclick=()=>{const c=document.createElement('canvas');c.width=600;c.height=340;const x=c.getContext('2d');
+  const g=x.createLinearGradient(0,0,600,340);g.addColorStop(0,'#059669');g.addColorStop(1,'#0369a1');x.fillStyle=g;x.fillRect(0,0,600,340);
+  x.fillStyle='#fff';x.textAlign='center';x.font='bold 26px system-ui,sans-serif';x.fillText('AquaGuard Water Badge',300,50);
+  x.font='64px system-ui,sans-serif';x.fillText(lv[2],300,130);x.font='bold 40px system-ui,sans-serif';x.fillText(lv[1],300,195);
+  x.font='28px system-ui,sans-serif';x.fillText('Score: '+score+'/100',300,245);x.font='16px system-ui,sans-serif';x.fillText('Every Drop Counts. Protect Today, Sustain Tomorrow.',300,300);
+  try{const a=document.createElement('a');a.download='aquaguard-badge.png';a.href=c.toDataURL('image/png');document.body.appendChild(a);a.click();a.remove();$('sm').textContent='Badge download started. If nothing happens, take a screenshot of this card.'}catch(e){$('sm').textContent='Download unavailable here. Take a screenshot instead.'}};
+}
+renderQ();
+
+/* IoT simulation */
+let lvl=70,flow=12,hist=Array(30).fill(12),leak=false,high=0,shut=false;
+const log=m=>{const li=document.createElement('li');li.textContent=new Date().toLocaleTimeString()+' · '+m;$('log').prepend(li);while($('log').children.length>8)$('log').lastChild.remove()};
+const on=id=>$(id).getAttribute('aria-pressed')==='true';
+['auto','arm'].forEach(id=>$(id).onclick=()=>{const v=!on(id);$(id).setAttribute('aria-pressed',v);log((id==='auto'?'Auto shut-off ':'Leak sensor ')+(v?'enabled':'disabled'))});
+$('simLeak').onclick=()=>{leak=true;shut=false;log('Leak simulated on main pipe.')};
+$('fix').onclick=()=>{leak=false;shut=false;high=0;log('Leak repaired. Valve reopened.')};
+function setStat(t,bad){$('stat').textContent=t;$('stat').style.color=bad?'var(--wn)':'var(--em)'}
+setInterval(()=>{
+ let base=shut?0:10+Math.random()*5;
+ flow=leak&&!shut?base+16+Math.random()*6:base;
+ lvl+= (leak&&!shut?-1.2:-.15)+(lvl<30?1.5:0)*Math.random();
+ lvl=Math.max(5,Math.min(100,lvl));
+ if(on('arm')&&leak&&!shut){high++;if(high>=3){log('⚠ LEAK DETECTED: abnormal flow '+flow.toFixed(1)+' L/min');if(on('auto')){shut=true;log('Auto shut-off closed the valve.')}high=-99}}
+ setStat(shut?'Valve closed':leak&&on('arm')?'Leak alert':leak?'Leak undetected (sensor off)':'Normal',leak&&!shut);
+ if(lvl<20&&!shut&&Math.random()<.2)log('Low tank level: pump started.');
+ hist.push(flow);hist.shift();
+ $('flow').textContent=flow.toFixed(1);$('lvl').textContent=Math.round(lvl)+'%';$('fill').style.height=lvl+'%';
+ $('spark').setAttribute('points',hist.map((v,i)=>`${i*200/29},${58-Math.min(v,32)/32*54}`).join(' '));
+},1000);
+
+/* Limitations */
+const L={
+ 'Hardware maintenance':['Sensors can clog, drift or lose power.','Self-diagnostics, low-power ESP32 boards with solar backup, modular replacement kits and trained local technicians.'],
+ 'Rural connectivity':['Many villages have weak or no mobile data.','LoRa and SMS fallback, store-and-forward logging on the device, and community gateways shared by many sensors.'],
+ 'Behavioural adaptation':['Dashboards fail if people ignore them.','Gamified quiz, pledges, local-language nudges and neighbourhood leaderboards keep habits going.'],
+ 'Data privacy':['Usage patterns can reveal when people are home.','Data minimisation, on-device processing, anonymised community stats and clear opt-in consent.'],
+ 'Prototype scope':['This demo uses simulated sensor data. No real hardware is connected, and community reports and pledges are not saved or verified.','Next step: pilot with real ESP32 flow and level sensors in one apartment block, add a backend database and have a local volunteer verify each report.'],
+ 'Accuracy and false alarms':['Sensors can misread during air bubbles, pressure changes or heavy planned use, which triggers false leak alerts.','Calibrate per site, use AI baselines of normal usage, require repeated high readings before shut-off (as in this demo) and let users override the valve.'],
+ 'Cost and adoption':['Sensors, valves and installation add cost that low-income households and small towns may not afford.','Low-cost components, subsidies or shared building-level sensors, and savings tracking so users see the payback in lower water bills.'],
+ 'Power and internet dependence':['Outages stop sensors and dashboards when they are needed most.','Battery or solar backup, local alarm buzzers that work offline, and sync of stored data when connectivity returns.']
+};
+Object.keys(L).forEach((k,i)=>{const b=document.createElement('button');b.className='tab ui';b.textContent=k;b.setAttribute('role','tab');b.onclick=()=>showL(k);$('ltabs').append(b)});
+function showL(k){[...$('ltabs').children].forEach(b=>b.setAttribute('aria-selected',b.textContent===k));
+ $('lbody').innerHTML=`<h3 class="text-xl font-semibold">${k}</h3><p class="mu mt-2"><b>Challenge:</b> ${L[k][0]}</p><p class="mt-2"><b class="em">Our approach:</b> ${L[k][1]}</p>`}
+showL('Hardware maintenance');
+
+/* Community */
+const reports=[{t:'Pipe leak',l:'Market Road, near bus stop',d:'Steady stream from joint',w:'2 h ago'},{t:'Overflowing tank',l:'Block C, Green Apartments',d:'',w:'5 h ago'}];
+function drawR(){$('rl').innerHTML=reports.map(r=>`<li class="glass p-3 text-sm"><b class="ui">${esc(r.t)}</b> <span class="mu">· ${esc(r.w)}</span><div>📍 ${esc(r.l)}</div>${r.d?`<div class="mu">${esc(r.d)}</div>`:''}</li>`).join('')}
+drawR();
+$('lf').onsubmit=e=>{e.preventDefault();const l=$('ll').value.trim();
+ if(l.length<3){$('le').textContent='Enter the location so a crew can find the leak.';return}
+ $('le').textContent='';reports.unshift({t:$('lt').value,l,d:$('ld').value.trim(),w:'Just now'});drawR();$('lf').reset();log('Community report received: '+l)};
+let pc=1248;
+$('pf').onsubmit=e=>{e.preventDefault();const n=$('pn').value.trim();
+ if(n.length<2){$('pe').textContent='Enter your name to sign the pledge.';return}
+ if(!$('pc').checked){$('pe').textContent='Tick the box to confirm your pledge.';return}
+ $('pe').textContent='';$('cn').textContent=n;$('cd').textContent='Pledged on '+new Date().toLocaleDateString('en-US',{dateStyle:'long'});$('cert').classList.remove('hid');$('pcount').textContent=fmt(++pc);$('pf').reset();
+ try{localStorage.setItem('aqg_pledge',n)}catch(e){}};
+
+/* 50-question water resources bank (first option is correct; options are shuffled on screen) */
+const WQ=[
+'What share of Earth’s water is fresh?|About 2.5%|About 10%|About 25%|About 50%',
+'Where is most fresh water stored?|Glaciers and ice caps|Rivers|Lakes|The atmosphere',
+'Water vapour turning into droplets is called?|Condensation|Evaporation|Infiltration|Sublimation',
+'An underground layer of water-bearing rock or sand is a(n)?|Aquifer|Delta|Moraine|Estuary',
+'Collecting and storing rain from roofs is called?|Rainwater harvesting|Desalination|Irrigation|Chlorination',
+'Which river is generally considered India’s longest?|Ganga|Yamuna|Narmada|Krishna',
+'Which is the longest peninsular river of India?|Godavari|Kaveri|Mahanadi|Tapi',
+'World Water Day is observed on?|22 March|5 June|22 April|16 October',
+'World Wetlands Day is observed on?|2 February|22 March|5 June|11 July',
+'Jal Jeevan Mission aims to provide?|Tap water to every rural household|Free irrigation pumps|Bottled water in cities|River linking',
+'Namami Gange focuses on?|Cleaning and rejuvenating the Ganga|Building new dams|Desert irrigation|Ocean desalination',
+'Hardness of water is mainly due to salts of?|Calcium and magnesium|Sodium and potassium|Iron and copper|Chlorine and fluorine',
+'The pH of pure water is?|7|1|10|14',
+'Water boils at sea level at?|100 °C|90 °C|80 °C|120 °C',
+'Which is the deepest freshwater lake?|Lake Baikal|Lake Superior|Lake Victoria|Lake Erie',
+'Which sector uses the most fresh water globally?|Agriculture|Industry|Households|Tourism',
+'WHO’s estimate of basic domestic water need per person per day?|50–100 litres|5–10 litres|500–600 litres|1,000 litres',
+'Drip irrigation mainly saves water by?|Delivering it at the roots|Flooding fields|Spraying it high in the air|Using sea water',
+'Which disease is spread by contaminated drinking water?|Cholera|Dengue|Malaria|Chikungunya',
+'Which disease spreads via mosquitoes breeding in stagnant water?|Dengue|Cholera|Typhoid|Hepatitis A',
+'Removing salt from sea water is called?|Desalination|Filtration|Sedimentation|Aeration',
+'Reverse osmosis cleans water using?|A semi-permeable membrane|Boiling|Sunlight only|Sand and gravel only',
+'Chlorination is used to?|Kill disease-causing germs|Soften water|Remove salt|Add minerals',
+'Greywater is?|Used water from sinks, showers and laundry|Toilet waste|Rain on roofs|Sea water',
+'Which is the tallest dam in India?|Tehri Dam|Bhakra Dam|Hirakud Dam|Nagarjuna Sagar Dam',
+'Bhakra Nangal Dam is built on the river?|Sutlej|Beas|Ravi|Chenab',
+'Hirakud Dam is built on the river?|Mahanadi|Godavari|Damodar|Tungabhadra',
+'Sardar Sarovar Dam is built on the river?|Narmada|Tapi|Mahi|Sabarmati',
+'Which river is called the ‘Sorrow of Bihar’?|Kosi|Son|Gandak|Punpun',
+'The Gandak joins the Ganga near which city across from Patna?|Hajipur|Gaya|Bhagalpur|Darbhanga',
+'Which is India’s largest river basin by catchment area?|Ganga basin|Indus basin|Godavari basin|Brahmaputra basin',
+'India holds roughly what share of world fresh water resources?|About 4%|About 20%|About 15%|About 40%',
+'India’s main monsoon months are?|June to September|March to May|October to December|January to February',
+'Which structure helps recharge groundwater?|Recharge pit|Concrete paving|Open sewer|Storm drain to the sea',
+'Rani ki Vav, a famous stepwell, is in which town?|Patan, Gujarat|Jaipur|Hampi|Lucknow',
+'Johads are traditional rainwater structures of?|Rajasthan|Kerala|Assam|Punjab',
+'A water footprint is?|Total fresh water used to make goods and services|Width of a river|Rainfall in a year|Depth of a well',
+'Virtual water means?|Water embedded in producing a product|Water shown on screens|Distilled water|Frozen water',
+'Eutrophication is caused by excess?|Nutrients like nitrates and phosphates|Oxygen|Salt|Sunlight',
+'Acid rain is mainly caused by?|Sulphur and nitrogen oxides|Oxygen|Argon|Helium',
+'Wetlands help by?|Filtering pollutants and storing floodwater|Increasing flood damage|Blocking rain|Making soil salty',
+'The Ramsar Convention protects?|Wetlands|Glaciers|Deserts|Mountain passes',
+'A country faces water stress below about how much per person per year?|1,700 cubic metres|17,000 cubic metres|170 cubic metres|100,000 cubic metres',
+'Which UN Sustainable Development Goal covers clean water and sanitation?|SDG 6|SDG 1|SDG 13|SDG 15',
+'The best time to water plants is?|Early morning or evening|Noon|Midafternoon|Only at night in winter',
+'A dual-flush toilet saves water by?|Offering a half and a full flush|Using no water|Flushing twice|Having a larger tank',
+'BOD (biochemical oxygen demand) measures?|Oxygen microbes need to break down organic matter|Water temperature|Salt level|Water colour',
+'BIS acceptable limit for TDS in drinking water is?|500 mg/L|50 mg/L|5,000 mg/L|5 mg/L',
+'Groundwater arsenic is a known problem in which region?|The Ganga plains, including parts of Bihar|The Thar desert only|The Western Ghats peaks|Himalayan glaciers',
+'The water table is?|The upper surface of groundwater|A river’s mouth|A rain gauge level|The ocean floor'
+].map(s=>{const a=s.split('|');return{q:a[0],c:a[1],o:a.slice(1)}});
+const shf=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
+let W={set:[],i:0,sc:0,miss:[]};
+$('wn').textContent=WQ.length;
+function wHome(){
+ let best='';try{const b=localStorage.getItem('aqg_wbest');if(b)best=`<p class="mu text-sm ui mt-3">Your best: <b class="em">${esc(b)}</b></p>`}catch(e){}
+ $('wbox').innerHTML=`<div class="text-center"><div class="text-5xl">🌍</div><h3 class="text-xl font-semibold mt-2">Test your water knowledge</h3><p class="mu">Rivers, dams, groundwater, quality, conservation and more.</p><div class="flex flex-wrap justify-center gap-3 mt-4"><button class="btn p" id="w10">Quick round (10)</button><button class="btn" id="wall">Full test (${WQ.length})</button></div>${best}</div>`;
+ $('w10').onclick=()=>wStart(10);$('wall').onclick=()=>wStart(WQ.length);
+}
+function wStart(n){W={set:shf(WQ).slice(0,n),i:0,sc:0,miss:[]};wQ()}
+function wQ(){
+ if(W.i>=W.set.length)return wEnd();
+ const c=W.set[W.i];
+ $('wbox').innerHTML=`<div class="ui mu text-sm flex justify-between"><span>Question ${W.i+1} of ${W.set.length}</span><span>Score ${W.sc}</span></div><div class="bar my-2"><i style="width:${W.i/W.set.length*100}%"></i></div><h3 class="text-xl font-semibold">${esc(c.q)}</h3>`+
+ shf(c.o).map(o=>`<button class="opt ui">${esc(o)}</button>`).join('')+`<div id="wf" class="mt-3 ui text-sm" aria-live="polite"></div>`;
+ $('wbox').querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+  const ok=b.textContent===c.c;
+  $('wbox').querySelectorAll('.opt').forEach(x=>{x.disabled=true;if(x.textContent===c.c)x.style.borderColor='var(--em)'});
+  if(ok)W.sc++;else{b.style.borderColor='var(--wn)';W.miss.push(c)}
+  $('wf').innerHTML=`<b style="color:var(${ok?'--em':'--wn'})">${ok?'Correct!':'Not quite.'}</b> ${ok?'':'Answer: '+esc(c.c)}<div class="mt-3"><button class="btn p" id="wnx">${W.i+1>=W.set.length?'See results':'Next'}</button></div>`;
+  $('wnx').focus();$('wnx').onclick=()=>{W.i++;wQ()}});
+}
+function wEnd(){
+ const n=W.set.length,p=Math.round(W.sc/n*100),t=p>=80?'Water expert! 🏆':p>=50?'Good knowledge. Keep learning! 💧':'Time to dive deeper. Try again! 🌱';
+ try{const k='aqg_wbest',old=localStorage.getItem(k);if(!old||p>parseInt(old.split('%')[0]))localStorage.setItem(k,p+'% ('+n+' questions)')}catch(e){}
+ $('wbox').innerHTML=`<div class="text-center"><div class="ui mu text-sm">Your result</div><div class="text-6xl font-extrabold em ui">${W.sc}<span class="text-xl mu">/${n}</span></div><h3 class="text-xl font-semibold">${t}</h3><div class="bar my-3"><i style="width:${p}%"></i></div></div>`+
+ (W.miss.length?`<h4 class="font-semibold ui mt-3">Review (${W.miss.length} missed)</h4><ul class="list-disc pl-5 text-sm mt-1 max-h-56 overflow-y-auto">${W.miss.map(m=>`<li>${esc(m.q)} <b class="em">${esc(m.c)}</b></li>`).join('')}</ul>`:'<p class="em ui text-center">Perfect score, nothing to review!</p>')+
+ `<div class="flex flex-wrap justify-center gap-3 mt-4"><button class="btn p" id="wa">Play again</button><button class="btn" id="wh">Back</button></div>`;
+ $('wa').onclick=()=>wStart(n);$('wh').onclick=wHome;
+}
+wHome();
+
+/* Benefits and effects */
+const BE={
+ 'Benefits':{note:'AquaGuard helps keep these benefits available by cutting waste and catching leaks early.',items:[
+  ['🚰','Drinking water and health','Safe water and sanitation prevent diseases such as cholera and typhoid and support daily hygiene.'],
+  ['🌾','Agriculture and food security','Rivers, canals and groundwater irrigate crops, which feed people and give farmers their income.'],
+  ['⚡','Clean energy','Dams and flowing rivers produce hydropower, a renewable source of electricity.'],
+  ['🏭','Industry and economy','Factories, textiles, food processing and power plants all need water for production and cooling.'],
+  ['🐟','Ecosystems and biodiversity','Rivers, lakes and wetlands support fish, birds and plants, filter pollutants and store floodwater.'],
+  ['🚤','Transport, climate and recreation','Waterways carry goods, water bodies moderate local climate, and they support tourism and culture.']]},
+ 'Effects of misuse and scarcity':{note:'Each of these is a reason AquaGuard tracks leaks, usage and community reports.',items:[
+  ['📉','Falling groundwater','Over-pumping lowers the water table, dries wells and raises the cost of pumping and drilling.'],
+  ['🧪','Pollution and disease','Untreated sewage, chemicals and arsenic or fluoride contamination make water unsafe and spread illness.'],
+  ['🌊','Floods and droughts','Lost wetlands, poor drainage and erratic rainfall worsen floods in one season and shortages in the next.'],
+  ['🌾','Crop loss and food prices','Water shortage cuts yields, hits farm incomes and can push food prices up.'],
+  ['🐢','Ecosystem damage','Excess nutrients cause algal blooms and oxygen loss, and shrinking rivers and wetlands kill wildlife.'],
+  ['⚖️','Social and economic strain','Scarcity leads to disputes between users and regions, and to hours lost fetching water, often by women and children.']]}
+};
+Object.keys(BE).forEach(k=>{const b=document.createElement('button');b.className='tab ui';b.textContent=k;b.setAttribute('role','tab');b.onclick=()=>showBE(k);$('betabs').append(b)});
+function showBE(k){[...$('betabs').children].forEach(b=>b.setAttribute('aria-selected',b.textContent===k));
+ $('becards').innerHTML=BE[k].items.map(i=>`<div class="glass p-5"><div class="text-3xl" aria-hidden="true">${i[0]}</div><h3 class="font-semibold text-lg mt-1">${i[1]}</h3><p class="mu text-sm mt-1">${i[2]}</p></div>`).join('');
+ $('benote').textContent=BE[k].note}
+showBE('Benefits');
+
+/* Water resource advisor */
+function adv(f){
+ const s=[],add=(i,t,w,h,p)=>s.push({i,t,w,h,p});
+ const big=f.space==='roof'||f.space==='land',bore=f.src==='bore'||f.need==='ground';
+ if(big)add('🌧️','Harvest rainwater','Monsoon rain runs off unused, but it is free water.','Route roof pipes through a first-flush filter into a storage tank'+(bore?', and send the overflow to a recharge pit or well.':'. Use it for plants, cleaning and flushing.'),'High');
+ else add('🪣','Use a balcony rain barrel','Even small spaces can catch useful rain.','Place a covered barrel under a downpipe or drain and use it for plants and mopping.','Medium');
+ if(f.need==='drink'||f.src==='bore'||f.src==='river')add('🧪','Test before you drink','Source water can carry germs, arsenic or fluoride you cannot see or taste.','Get it lab-tested (TDS, bacteria, and arsenic or fluoride where common), then choose a filter to match. Boil or chlorinate if germs are found.','High');
+ if(f.need==='garden'||f.who==='farm')add('🌱','Switch to drip and mulch','Flooding wastes water to evaporation and runoff.','Use drip lines or a watering can, mulch the soil and water only in early morning or evening.','High');
+ if(f.who==='farm')add('🌾','Store and recharge on the farm','Water stored in the wet season carries you through the dry one.','Dig a farm pond or small check dam, and choose crops that match your local rainfall.','High');
+ if(bore)add('⬇️','Recharge your groundwater','A borewell only works while the water table holds up.','Build a recharge pit near it, avoid over-pumping, and note the water level each month.','High');
+ if(f.src==='tanker')add('🚛','Store tanker water safely','Tanker supply is irregular and easy to contaminate.','Use a covered tank with a float valve, and clean it twice a year.','Medium');
+ if(['clean','bill'].includes(f.need)||['home','apt','school','biz'].includes(f.who))add('♻️','Reuse greywater','Water from sinks, showers and laundry can be used again.','Divert it (not toilet waste) to gardens or flushing through a simple filter.',['clean','bill'].includes(f.need)?'High':'Medium');
+ if(f.need==='bill')add('🚿','Fit efficient fixtures','Taps and toilets quietly waste a lot.','Add tap aerators and dual-flush toilets, and keep showers to 5–7 minutes.','High');
+ if(f.who==='biz')add('🏭','Recycle process water','Industry can cut intake by treating and reusing its own water.','Run a water audit, treat wastewater on site and reuse it for cooling or cleaning.','High');
+ if(f.who==='school'||f.who==='apt')add('📣','Run a water audit and pledge drive','Shared buildings save most when everyone takes part.','Track usage monthly, fix leaks fast and hold a pledge day using this site.','Medium');
+ add('🔍','Find leaks and watch your meter','Hidden leaks are one of the biggest sources of waste.','Close all taps, note the meter, wait 30 minutes. If it moves, you have a leak. Report it below.','High');
+ add('🤝','Join the community','Local action protects shared water.','Report leaks in your area and sign the pledge on this page.','Medium');
+ return s.sort((a,b)=>(b.p==='High')-(a.p==='High')).slice(0,8);
+}
+$('adf').onsubmit=e=>{e.preventDefault();
+ const f={who:$('a1').value,need:$('a2').value,src:$('a3').value,space:$('a4').value};
+ if(!f.who||!f.need||!f.src||!f.space){$('ade').textContent='Please answer all four questions.';return}
+ $('ade').textContent='';
+ const L=adv(f),txt=i=>$(i).selectedOptions[0].textContent;
+ $('adout').innerHTML=`<h3 class="text-xl font-semibold mb-3">Your ${L.length} suggestions</h3><div class="grid sm:grid-cols-2 gap-4">`+L.map(x=>`<div class="glass p-5"><div class="flex justify-between items-start"><span class="text-3xl" aria-hidden="true">${x.i}</span><span class="ui text-xs px-2 py-1 rounded-full" style="background:${x.p==='High'?'var(--em)':'var(--bd)'};color:${x.p==='High'?'var(--ink)':'var(--tx)'}">${x.p} impact</span></div><h4 class="font-semibold text-lg mt-1">${x.t}</h4><p class="mu text-sm">${x.w}</p><p class="text-sm mt-2"><b class="em">Do this:</b> ${x.h}</p></div>`).join('')+`</div><button class="btn p mt-4" id="adb">Ask Bhim for a step-by-step plan</button>`;
+ $('adb').onclick=()=>{bToggle(true);bSend(`I am a ${txt('a1')}. My goal is: ${txt('a2')}. My water source is: ${txt('a3')}. My space: ${txt('a4')}. Give me a short step-by-step plan to use and protect my water resources.`)};
+ $('adout').scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'})};
+
+/* Website limitations */
+$('wl').innerHTML=[
+ ['📡','Simulated data','The IoT readings, hero statistics and counters are demo values, not from real sensors.','Connect ESP32 flow and level sensors through MQTT or WebSocket.'],
+ ['💾','Little saved data','Leak reports, pledges and the pledge count reset when the page reloads. Quiz best scores stay only in your own browser.','Add a backend database and user accounts.'],
+ ['📍','Unverified reports','Anyone can submit a leak report. There is no verification, map location or alert to the water authority.','Add moderation, GPS tagging and a dashboard for local bodies.'],
+ ['🤖','AI assistant limits','Bhim can make mistakes, needs an internet connection and your permission, and otherwise falls back to fixed answers. Its tips are general advice, not professional engineering or health advice.','Add expert-reviewed answers and cited sources.'],
+ ['🎙️','Voice limits','Voice input depends on browser support, microphone permission and internet. Hindi speech needs a Hindi voice on the device.','Use a dedicated speech service with more languages.'],
+ ['🌐','Language and access','Page text is in English only, voice and AI cover English and Hindi, and nothing works offline.','Add regional languages and an offline-first mobile app.'],
+ ['📚','Content accuracy','Quiz questions and tips come from general knowledge and have not been expert reviewed. Figures differ by region and year.','Review with water experts and cite official sources.'],
+ ['🎨','Campaign tools','Posters are made in your browser and nothing is uploaded. Registered campaigns, action ticks and share counts are not verified or shared with anyone, and the savings estimator uses an assumed 30 L per household per day.','Add accounts, a campaign dashboard, verified reports and real before and after meter data.'],
+ ['🧊','3D models are illustrative','The India map is a simplified outline with approximate pins, and the rain-to-recharge model uses made-up percentages to teach the idea. It needs WebGL and may be slow on old phones.','Use real GIS boundaries, CGWB well data and a hydrologist-reviewed model.'],
+ ['🧰','Generic advice','The advisor uses simple rules and does not know your local rainfall, soil, water table or costs.','Add local data and a cost and savings estimator.']
+].map(i=>`<div class="glass p-4"><div class="text-2xl" aria-hidden="true">${i[0]}</div><h4 class="font-semibold ui">${i[1]}</h4><p class="mu text-sm mt-1">${i[2]}</p><p class="text-sm mt-2"><b class="em">Full version:</b> ${i[3]}</p></div>`).join('');
+
+/* India conservation map */
+const IN=[[73.5,34.8],[74.3,37.0],[75.9,36.0],[77.8,35.5],[79.0,34.3],[78.8,32.6],[79.0,30.9],[80.2,30.3],[81.0,30.2],[80.1,28.8],[81.9,27.9],[84.0,27.4],[86.0,26.6],[88.1,26.5],[88.8,27.9],[89.0,26.8],[90.5,26.8],[92.0,26.9],[92.7,27.9],[94.4,29.3],[96.0,29.4],[97.4,28.3],[96.2,27.2],[95.2,26.0],[94.5,25.0],[93.2,22.0],[92.2,23.7],[91.2,23.0],[91.5,24.2],[90.5,25.2],[89.8,25.3],[89.0,26.3],[88.9,24.5],[88.2,24.5],[88.7,22.5],[89.0,21.7],[87.0,21.5],[86.5,20.2],[85.0,19.3],[84.0,18.4],[82.3,16.7],[81.0,15.8],[80.2,13.5],[79.8,11.5],[79.2,10.3],[78.2,8.9],[77.5,8.1],[76.4,9.2],[75.5,11.8],[74.7,13.0],[73.8,15.4],[73.0,17.5],[72.8,19.0],[72.8,21.0],[72.0,21.2],[70.8,20.8],[69.0,22.3],[70.0,23.0],[68.2,23.6],[68.9,24.3],[70.0,24.2],[71.0,24.5],[70.3,25.7],[70.0,27.0],[71.8,27.9],[73.2,29.5],[74.5,31.0],[74.6,32.2],[74.0,33.5]];
+const px=(lo,la)=>[(lo-67.5)*19.5,(37.5-la)*21];
+const MS=[
+ {n:'Ladakh',s:'Ladakh',t:'Innovation',h:'Ice stupas',r:'Cone-shaped ice towers freeze winter meltwater and release it in spring, giving farmers water when streams are still dry.',lo:77.58,la:34.16},
+ {n:'Alwar',s:'Rajasthan',t:'Traditional',h:'Johads and community check dams',r:'Villagers, with Tarun Bharat Sangh, built thousands of johads. The Arvari river is reported to flow again and wells to have recharged.',lo:76.6,la:27.56},
+ {n:'Ralegan Siddhi',s:'Maharashtra',t:'Watershed',h:'Watershed development',r:'A drought-prone village used check dams, contour trenches, tree planting and shared water rules to become water-secure. It is now a widely studied model.',lo:74.43,la:18.97},
+ {n:'Saurashtra',s:'Gujarat',t:'Recharge',h:'Check dams and borewell recharge',r:'Community-built check dams and recharge structures helped raise well water levels across parts of Saurashtra.',lo:70.8,la:22.3},
+ {n:'Dewas',s:'Madhya Pradesh',t:'Recharge',h:'Farm pond campaign',r:'Farmers dug many farm ponds, which are credited with raising groundwater and allowing an extra crop season.',lo:76.05,la:22.97},
+ {n:'Patna and Bihar',s:'Bihar',t:'Traditional',h:'Jal-Jeevan-Hariyali Abhiyan',r:'The state mission revives ponds and traditional ahar-pyne irrigation channels and promotes rainwater harvesting and tree cover.',lo:85.14,la:25.6},
+ {n:'Sikkim',s:'Sikkim',t:'Watershed',h:'Dhara Vikas springshed revival',r:'Mapping and recharging mountain springs is reported to have restored flow in many village springs.',lo:88.61,la:27.33},
+ {n:'Meghalaya',s:'Meghalaya',t:'Traditional',h:'Bamboo drip irrigation',r:'An old system, often cited as about 200 years old, carries stream water through bamboo pipes to plants drop by drop using very little water.',lo:91.88,la:25.5},
+ {n:'Bengaluru',s:'Karnataka',t:'Policy',h:'Rainwater harvesting rules',r:'Rules require rainwater harvesting for buildings on larger sites, cutting runoff and adding to groundwater.',lo:77.59,la:12.97},
+ {n:'Chennai',s:'Tamil Nadu',t:'Policy',h:'Mandatory rooftop harvesting (2003)',r:'Making rooftop harvesting compulsory is credited with raising groundwater levels in many parts of the city.',lo:80.27,la:13.08}
+];
+let msel=0,mf='All';
+const mVis=()=>MS.map((m,i)=>[m,i]).filter(x=>mf==='All'||x[0].t===mf);
+function mDraw(){
+ const pts=IN.map(p=>px(p[0],p[1]).map(v=>v.toFixed(1)).join(',')).join(' ');
+ $('mapsvg').innerHTML=`<polygon points="${pts}" fill="var(--card)" stroke="var(--em)" stroke-width="2.5" stroke-linejoin="round"/>`+
+  mVis().map(([m,i])=>{const [x,y]=px(m.lo,m.la),on=i===msel,c=on?'var(--oc)':'var(--em)';
+   return `<g class="pin" data-i="${i}" tabindex="0" role="button" aria-label="${m.n}: ${m.h}" transform="translate(${x.toFixed(1)},${y.toFixed(1)})" style="cursor:pointer"><circle r="${on?16:12}" fill="${c}" opacity=".25">${reduce?'':'<animate attributeName="r" values="8;18;8" dur="2.5s" repeatCount="indefinite"/>'}</circle><circle r="${on?9:7}" fill="${c}" stroke="#fff" stroke-width="2"/><title>${m.n}</title></g>`}).join('');
+ const m=MS[msel];
+ $('mdet').innerHTML=`<div class="ui text-xs mu">📍 ${m.s}</div><h3 class="text-2xl font-bold">${m.n}</h3><div class="flex flex-wrap gap-2 my-2 ui text-xs"><span class="px-2 py-1 rounded-full" style="background:var(--em);color:var(--ink)">✅ Positive result</span><span class="px-2 py-1 rounded-full" style="background:var(--bd)">${m.t}</span></div><p class="font-semibold">${m.h}</p><p class="mu mt-1">${m.r}</p>`;
+ $('mlist').innerHTML='';
+ mVis().forEach(([x,i])=>{const b=document.createElement('button');b.className='tab ui text-sm';b.textContent=x.n;b.setAttribute('aria-selected',i===msel);b.onclick=()=>{msel=i;mDraw()};$('mlist').append(b)});
+}
+['All','Watershed','Traditional','Recharge','Policy','Innovation'].forEach(k=>{const b=document.createElement('button');b.className='tab ui';b.textContent=k;b.setAttribute('role','tab');b.setAttribute('aria-selected',k==='All');b.onclick=()=>{mf=k;[...$('mfil').children].forEach(x=>x.setAttribute('aria-selected',x.textContent===k));const v=mVis();if(!v.some(x=>x[1]===msel))msel=v[0][1];mDraw()};$('mfil').append(b)});
+$('mapsvg').addEventListener('click',e=>{const g=e.target.closest('.pin');if(g){msel=+g.dataset.i;mDraw()}});
+$('mapsvg').addEventListener('keydown',e=>{const g=e.target.closest&&e.target.closest('.pin');if(g&&(e.key==='Enter'||e.key===' ')){e.preventDefault();msel=+g.dataset.i;mDraw();const n=$('mapsvg').querySelector(`.pin[data-i="${msel}"]`);n&&n.focus()}});
+mDraw();
+
+/* Smart technology pathways */
+const ST=[
+ {k:'Leak sensors',e:'💧',p:'Hidden pipe leaks can waste water for days or weeks before anyone notices.',s:['Flow and pressure sensors read the pipe all day','Sudden jumps or night-time flow are flagged as a leak','An alert goes out and a valve can close automatically','The leak is fixed in hours, not weeks'],a:'iot',l:'See the live IoT dashboard'},
+ {k:'Smart meters',e:'📊',p:'People usually see their water use only on a monthly bill, when it is too late to change.',s:['The meter records use every hour','The app compares it with your normal use','It shows high-use alerts and personal tips','You spot waste early and use less'],a:'quiz',l:'Check your own footprint'},
+ {k:'AI prediction',e:'🤖',p:'Utilities often fix pipes only after they burst or supply runs short.',s:['Pressure, flow, weather and repair history are collected','An AI model spots patterns that come before failures and demand peaks','Crews are sent to the riskiest pipes first','Fewer bursts, planned repairs and better supply planning'],a:'iot',l:'See anomaly detection in action'},
+ {k:'Smart irrigation',e:'🌱',p:'Farms and gardens often over-water or under-water their crops.',s:['Soil moisture and weather sensors read field conditions','The system works out what the crop needs today','Drip valves open only when and where needed','Less water used and healthier crops'],a:'advisor',l:'Get farm and garden suggestions'},
+ {k:'Satellites',e:'🛰️',p:'It is hard to see groundwater, reservoirs and drought across whole districts.',s:['Satellites image lakes, crops and soil moisture','Maps show water stress and changes over time','Planners pick places for recharge and relief','Better decisions for villages and districts'],a:'map',l:'See where conservation worked'},
+ {k:'Apps and community',e:'📱',p:'Leaks and wastage in streets and buildings often go unreported.',s:['Citizens photograph and report problems by phone','Reports are grouped by location and severity','Authorities and volunteers respond','Faster fixes and shared responsibility'],a:'community',l:'Report a leak'}
+];
+const SN=['Sense','Analyse','Act','Result'];
+let stT=null;
+function stPlay(){
+ clearInterval(stT);const els=[...$('ststeps').children];
+ const hi=k=>els.forEach((x,j)=>{x.style.borderColor=j===k?'var(--em)':'var(--bd)';x.style.transform=(j===k&&!reduce)?'translateY(-4px)':''});
+ let n=0;hi(0);stT=setInterval(()=>{n++;if(n>=els.length){clearInterval(stT);hi(-1);return}hi(n)},1300)}
+function stShow(i){
+ clearInterval(stT);[...$('sttabs').children].forEach((b,j)=>b.setAttribute('aria-selected',j===i));
+ const t=ST[i];
+ $('stbody').innerHTML=`<div class="flex items-start gap-3"><div class="text-4xl" aria-hidden="true">${t.e}</div><div><h3 class="text-xl font-semibold">${t.k}</h3><p class="mu"><b>Problem:</b> ${t.p}</p></div></div>`+
+  `<div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-5" id="ststeps">`+t.s.map((x,j)=>`<div class="glass p-4" style="transition:all .3s"><div class="ui text-xs em font-bold">${j+1}. ${SN[j]}</div><p class="text-sm mt-1">${x}</p></div>`).join('')+`</div>`+
+  `<div class="flex flex-wrap gap-3 mt-5"><button class="btn" id="stp">▶ Play the flow</button><a class="btn p" href="#${t.a}">${t.l}</a></div>`;
+ $('stp').onclick=stPlay;stPlay()}
+ST.forEach((t,i)=>{const b=document.createElement('button');b.className='tab ui';b.textContent=t.e+' '+t.k;b.setAttribute('role','tab');b.onclick=()=>stShow(i);$('sttabs').append(b)});
+stShow(0);
+
+/* Jharkhand 3D groundwater tanks */
+const JD=[
+ {n:'West Singhbhum',v:9.93,note:'Lowest use in the state',c:0x10b981,hx:'#10b981',cat:'Safe'},
+ {n:'Jharkhand average',v:30,note:'About 29–31% in recent assessments',c:0x0ea5e9,hx:'#0ea5e9',cat:'Safe'},
+ {n:'Dhanbad',v:75.08,note:'Highest use in the state, in a mining and urban area',c:0xf59e0b,hx:'#d97706',cat:'Semi-critical'}
+];
+$('jcards').innerHTML=JD.map(d=>`<div class="glass p-4"><div class="ui text-xs mu">${d.note}</div><div class="font-semibold">${d.n}</div><div class="text-3xl font-bold ui" style="color:${d.hx}">${d.v}%</div><div class="ui text-xs mu">${d.cat}</div></div>`).join('');
+(function(){
+ const box=$('jcv');
+ try{
+  if(!window.THREE)throw 0;
+  const T=THREE,w=()=>box.clientWidth,h=()=>box.clientHeight;
+  const rn=new T.WebGLRenderer({antialias:true,alpha:true});rn.setPixelRatio(Math.min(devicePixelRatio||1,2));rn.setSize(w(),h());box.append(rn.domElement);
+  const sc=new T.Scene(),cam=new T.PerspectiveCamera(40,w()/h(),.1,100);
+  sc.add(new T.AmbientLight(0xffffff,.75));const dl=new T.DirectionalLight(0xffffff,.8);dl.position.set(5,10,7);sc.add(dl);
+  const tx=getComputedStyle(document.documentElement).getPropertyValue('--tx').trim()||'#0f2a33';
+  const base=new T.Mesh(new T.CylinderGeometry(7.2,7.2,.3,48),new T.MeshLambertMaterial({color:0x059669,transparent:true,opacity:.35}));base.position.y=-.15;sc.add(base);
+  const TH=6,xs=[-3.6,0,3.6],ws=[];
+  const lab=(a,b,x,y)=>{const c=document.createElement('canvas');c.width=320;c.height=120;const g=c.getContext('2d');g.textAlign='center';g.fillStyle=tx;g.font='bold 30px system-ui,sans-serif';g.fillText(a,160,50);g.font='28px system-ui,sans-serif';g.fillText(b,160,92);const s=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(c),transparent:true,depthTest:false}));s.scale.set(4,1.5,1);s.position.set(x,y,0);sc.add(s)};
+  JD.forEach((d,i)=>{
+   const g=new T.Mesh(new T.CylinderGeometry(1.2,1.2,TH,32,1,true),new T.MeshBasicMaterial({color:0x7dd3fc,transparent:true,opacity:.18,side:T.DoubleSide,depthWrite:false}));g.position.set(xs[i],TH/2,0);sc.add(g);
+   const wt=new T.Mesh(new T.CylinderGeometry(1.1,1.1,1,32),new T.MeshLambertMaterial({color:d.c}));wt.position.set(xs[i],.01,0);wt.scale.y=.01;sc.add(wt);ws.push({m:wt,t:TH*d.v/100});
+   lab(d.n,d.v+'%',xs[i],TH+1.1)});
+  const sl=new T.Mesh(new T.PlaneGeometry(10.5,3.2),new T.MeshBasicMaterial({color:0xdc2626,transparent:true,opacity:.2,side:T.DoubleSide,depthWrite:false}));sl.rotation.x=-Math.PI/2;sl.position.y=TH*.7;sc.add(sl);
+  lab('Safe limit','70%',6.4,TH*.7+.5);
+  let th=.5,ph=1.2,drag=false,lx=0,ly=0,auto=!reduce;const t0=performance.now();
+  rn.domElement.onpointerdown=e=>{drag=true;lx=e.clientX;ly=e.clientY;rn.domElement.setPointerCapture(e.pointerId);box.style.cursor='grabbing'};
+  rn.domElement.onpointermove=e=>{if(!drag)return;th-=(e.clientX-lx)*.01;ph=Math.max(.5,Math.min(1.5,ph-(e.clientY-ly)*.008));lx=e.clientX;ly=e.clientY};
+  rn.domElement.onpointerup=rn.domElement.onpointercancel=()=>{drag=false;box.style.cursor='grab'};
+  const b=$('jrot');if(reduce){b.setAttribute('aria-pressed','false');b.textContent='\u25b6 Auto-rotate'}
+  b.onclick=()=>{auto=!auto;b.setAttribute('aria-pressed',auto);b.textContent=(auto?'\u23f8':'\u25b6')+' Auto-rotate'};
+  addEventListener('resize',()=>{rn.setSize(w(),h());cam.aspect=w()/h();cam.updateProjectionMatrix()});
+  (function loop(now){
+   const k=reduce?1:Math.min((now-t0)/1600,1),e=1-Math.pow(1-k,3);
+   ws.forEach(o=>{const v=Math.max(o.t*e,.02);o.m.scale.y=v;o.m.position.y=v/2});
+   if(auto&&!drag)th+=.004;
+   cam.position.set(16*Math.sin(ph)*Math.sin(th),2.8+16*Math.cos(ph),16*Math.sin(ph)*Math.cos(th));cam.lookAt(0,2.8,0);
+   rn.render(sc,cam);requestAnimationFrame(loop)})(t0);
+ }catch(e){box.innerHTML='<p class="mu p-8 text-center">The 3D view is not available in this browser. See the figures below.</p>'}
+})();
+
+/* ===== Reference-style sections: persona cards, how it works, FAQ ===== */
+const PERS=[['🏠','Home','Houses and flats','home'],['🏢','Society','Apartments and housing societies','apt'],['🌾','Farm','Farmers and gardens','farm'],['🎓','School','Schools and colleges','school'],['🏭','Business','Shops and industry','biz']];
+$('persons').innerHTML=PERS.map(x=>`<button class="glass p-5 persona ui" data-v="${x[3]}"><div class="text-3xl" aria-hidden="true">${x[0]}</div><div class="text-xs mu mt-1">${x[1]}</div><div class="font-semibold mt-1">${x[2]}</div><div class="em text-sm mt-2">Get my plan →</div></button>`).join('');
+$('persons').addEventListener('click',e=>{const b=e.target.closest('.persona');if(!b)return;$('a1').value=b.dataset.v;$('advisor').scrollIntoView({behavior:reduce?'auto':'smooth'});$('a2').focus({preventScroll:true})});
+const HS=[['Check your footprint','Take the six-question quiz and get a score with tips.','#quiz'],['Get your plan','Tell the advisor who you are and what you want. Get up to 8 practical suggestions.','#advisor'],['Watch the sensors','See tank level and flow on the simulated IoT panel.','#iot'],['Catch leaks early','Trigger a leak, see the alert and the auto shut-off close the valve.','#iot'],['Report and repair','Neighbours report leaks and wastage so crews can find them.','#community'],['Pledge and campaign','Take the pledge, tick your 10 actions and run a campaign.','#campaign']];
+$('hsteps').innerHTML=HS.map((s,i)=>`<a href="${s[2]}" class="glass p-5 step block"><div class="no">0${i+1}</div><h3 class="font-semibold text-lg ui mt-1">${s[0]}</h3><p class="mu text-sm mt-1">${s[1]}</p></a>`).join('');
+const FQ=[['Is AquaGuard connected to real sensors?','No. The tank, flow and alert values are simulated to show how a real system would behave. A full version would use ESP32 flow and level sensors.'],
+['How does the leak alert work in the demo?','Press “Simulate pipe leak”. When flow stays abnormally high for three readings, the alert fires and, if auto shut-off is on, the valve closes.'],
+['How do I start rainwater harvesting at home?','Route roof pipes through a first-flush filter into a tank, and send the overflow to a recharge pit or well. Open the 3D rain-to-recharge model to see the idea, and check your local rules and subsidies.'],
+['How do I join the awareness campaign?','Open the Campaign section: tick your 10 actions, make and download a poster, share the message and register a drive for your school, society, village or workplace.'],
+['Are the quiz answers and tips expert reviewed?','Not yet. They come from general knowledge and public sources. Treat them as learning aids and verify figures with official sources.'],
+['Is my data saved?','Almost nothing. Reports, pledges and registered campaigns reset when you reload. Your quiz best score and action ticks stay only in your own browser.'],
+['Why does the site show Jharkhand?','The groundwater tanks use Central Ground Water Board figures to show how different districts use the water they can safely extract each year.'],
+['Can Bhim give professional advice?','No. Bhim shares general water-saving tips in English or Hindi. For health, plumbing or engineering decisions, ask a qualified professional.']];
+$('faql').innerHTML=FQ.map(f=>`<details class="glass fq"><summary>${esc(f[0])}</summary><p class="mu mt-2">${esc(f[1])}</p></details>`).join('');
+
+/* ===== Awareness campaign ===== */
+const PIL=[['💧','Save','Fix drips, shorten showers, turn the tap off. Small habits add up to lakhs of litres.'],['🌧️','Harvest','Catch roof rain in tanks and recharge pits so monsoon water refills the ground.'],['♻️','Reuse','Send greywater to plants and flushing. Use RO reject water for cleaning.'],['🛡️','Protect','Keep ponds, rivers and wells clean. Never dump waste or chemicals in water.']];
+$('pillars').innerHTML=PIL.map(x=>`<div class="glass p-5"><div class="text-3xl" aria-hidden="true">${x[0]}</div><h3 class="font-semibold text-lg ui mt-1">${x[1]}</h3><p class="mu text-sm mt-1">${x[2]}</p></div>`).join('');
+const ACT=['Fix every dripping tap this week','Check my water meter for leaks once a month','Keep showers to 5–7 minutes','Turn the tap off while brushing and shaving','Wash the car with a bucket, not a hose','Run washing machines only with full loads','Reuse greywater or RO reject water','Water plants only in early morning or evening','Set up a rain barrel, tank or recharge pit','Tell three people about this campaign'];
+let actS=[];try{actS=JSON.parse(localStorage.getItem('aqg_acts')||'[]')}catch(e){}
+function drawAct(){
+ $('acts').innerHTML=ACT.map((a,i)=>`<button class="act" data-i="${i}" aria-pressed="${actS.includes(i)}"><i aria-hidden="true">${actS.includes(i)?'✓':''}</i><span>${esc(a)}</span></button>`).join('');
+ const n=actS.length;$('actn').textContent=n+'/10';$('actb').style.width=n*10+'%';
+ $('actm').textContent=n===10?'🏅 All 10 done. You are a Campaign Champion! Make a poster and inspire others.':n>=5?'Halfway there. Keep going!':n>0?'Good start. Every action counts.':'Tick an action when you have done it.';
+ $('actm').style.color=n===10?'var(--em)':'var(--mu)'}
+$('acts').addEventListener('click',e=>{const b=e.target.closest('.act');if(!b)return;const i=+b.dataset.i;actS=actS.includes(i)?actS.filter(x=>x!==i):[...actS,i];try{localStorage.setItem('aqg_acts',JSON.stringify(actS))}catch(e){}drawAct();const nb=$('acts').querySelector(`.act[data-i="${i}"]`);nb&&nb.focus()});
+drawAct();
+
+function drawPoster(){
+ const c=$('pcv'),x=c.getContext('2d'),W=c.width,H=c.height,sl=$('pos').value,nm=$('pon').value.trim();
+ const g=x.createLinearGradient(0,0,W,H);g.addColorStop(0,'#059669');g.addColorStop(1,'#0369a1');x.fillStyle=g;x.fillRect(0,0,W,H);
+ x.fillStyle='rgba(255,255,255,.1)';[[90,120,150],[520,260,110],[420,640,170],[60,600,90]].forEach(o=>{x.beginPath();x.arc(o[0],o[1],o[2],0,7);x.fill()});
+ x.save();x.translate(W/2,170);x.fillStyle='#fff';x.beginPath();x.moveTo(0,-95);x.bezierCurveTo(70,-10,80,40,0,95);x.bezierCurveTo(-80,40,-70,-10,0,-95);x.fill();x.fillStyle='#0369a1';x.font='bold 58px system-ui,sans-serif';x.textAlign='center';x.fillText('💧',0,35);x.restore();
+ x.fillStyle='#fff';x.textAlign='center';x.font='bold 22px system-ui,sans-serif';x.fillText('WATER AWARENESS CAMPAIGN',W/2,330);
+ x.font='bold 54px Georgia,serif';
+ const words=sl.split(' ');const lines=[];let cur='';words.forEach(w=>{const t=cur?cur+' '+w:w;if(x.measureText(t).width>W-90&&cur){lines.push(cur);cur=w}else cur=t});lines.push(cur);
+ lines.forEach((l,i)=>x.fillText(l,W/2,410+i*66));
+ const y0=410+lines.length*66+20;
+ x.font='20px system-ui,sans-serif';x.fillText('Fix leaks · Catch rain · Reuse · Protect',W/2,y0);
+ if(nm){x.font='bold 26px system-ui,sans-serif';x.fillText('Pledged by '+nm.slice(0,30),W/2,Math.min(y0+60,H-120))}
+ x.font='bold 24px system-ui,sans-serif';x.fillText('#EveryDropCounts',W/2,H-70);x.font='16px system-ui,sans-serif';x.fillText('AquaGuard · Protect Today, Sustain Tomorrow',W/2,H-40)}
+$('pos').onchange=drawPoster;$('pon').oninput=drawPoster;drawPoster();
+$('pdl').onclick=()=>{try{const a=document.createElement('a');a.download='aquaguard-campaign-poster.png';a.href=$('pcv').toDataURL('image/png');document.body.appendChild(a);a.click();a.remove();$('pdm').textContent='Poster download started. If nothing happens, take a screenshot.'}catch(e){$('pdm').textContent='Download unavailable here. Take a screenshot instead.'}};
+
+$('shw').href='#';
+function shUpd(){$('shw').href='https://wa.me/?text='+encodeURIComponent($('shm').value)}
+$('shm').oninput=shUpd;shUpd();
+$('shc').onclick=async()=>{try{await navigator.clipboard.writeText($('shm').value);$('shs').textContent='Message copied.'}catch(e){$('shs').textContent='Select the text above and copy it.'}};
+if(!navigator.share)$('shn').style.display='none';else $('shn').onclick=async()=>{try{await navigator.share({title:'AquaGuard campaign',text:$('shm').value})}catch(e){}};
+
+function estim(){const h=Math.max(0,Math.min(100000,+$('eh').value||0)),d=Math.max(0,Math.min(365,+$('ed').value||0)),l=h*d*30;$('eo').textContent=fmt(l)+' L';$('et').textContent='About '+fmt(l/10000)+' tanker loads of 10,000 L over '+d+' days.'}
+$('eh').oninput=$('ed').oninput=estim;estim();
+
+$('wk').innerHTML=[['Week 1','Learn','Launch with the quiz and the Water Q&A. Share the four ideas. Pick a leader for each area.'],['Week 2','Audit','Walk the building or street. Check meters, taps and tanks. Log every leak.'],['Week 3','Act','Fix leaks, set up rain barrels or a recharge pit, and start the 10 actions.'],['Week 4','Celebrate','Share posters and savings, hand out pledges and plan the next drive.']].map(w=>`<div class="glass p-5"><div class="ui em text-xs font-bold">${w[0]}</div><h4 class="font-semibold text-lg ui">${w[1]}</h4><p class="mu text-sm mt-1">${w[2]}</p></div>`).join('');
+$('runs').innerHTML=[['🎓','School','Run a water-audit club, hold a poster contest and let students check taps each Friday.'],['🏢','Society','Track the monthly tank and meter, fix leaks in common areas and set up rooftop harvesting.'],['🌾','Village','Hold a gram sabha, revive a pond, build check dams and share water rules.'],['🏭','Workplace','Audit pantry and washroom taps, set a monthly saving goal and recycle process water.']].map(r=>`<div class="glass p-5"><div class="text-3xl" aria-hidden="true">${r[0]}</div><h4 class="font-semibold ui mt-1">${r[1]}</h4><p class="mu text-sm mt-1">${r[2]}</p></div>`).join('');
+
+const camps=[];
+function drawC(){$('cl').innerHTML=camps.length?camps.map(c=>`<li class="glass p-3 text-sm"><b class="ui">${esc(c.t)}</b> <span class="mu">· ${esc(c.d)}</span><div>📍 ${esc(c.p)}</div></li>`).join(''):'<li class="mu text-sm">No campaigns added yet (demo list, not saved).</li>'}
+drawC();
+$('cf').onsubmit=e=>{e.preventDefault();const p=$('cpl').value.trim();
+ if(p.length<3){$('cfe').textContent='Enter the place where you will run it.';return}
+ if(!$('cdt').value){$('cfe').textContent='Pick a start date.';return}
+ $('cfe').textContent='';camps.unshift({t:$('cty').value,p,d:new Date($('cdt').value+'T00:00').toLocaleDateString('en-IN',{dateStyle:'medium'})});drawC();$('cf').reset();log('Campaign registered: '+p)};
+
+/* ===== Shared 3D helper ===== */
+function mk3D(box,fov){
+ const T=THREE,w=()=>box.clientWidth||600,h=()=>box.clientHeight||400;
+ const rn=new T.WebGLRenderer({antialias:true,alpha:true});rn.setPixelRatio(Math.min(devicePixelRatio||1,2));rn.setSize(w(),h());box.append(rn.domElement);
+ const sc=new T.Scene(),cam=new T.PerspectiveCamera(fov,w()/h(),.1,200);
+ sc.add(new T.AmbientLight(0xffffff,.8));const dl=new T.DirectionalLight(0xffffff,.8);dl.position.set(6,12,8);sc.add(dl);
+ const o={th:.4,ph:1.15,r:18,ty:1,auto:!reduce,drag:false,moved:0,onclick:null},el=rn.domElement;let lx=0,ly=0,vis=true;
+ el.onpointerdown=e=>{o.drag=true;o.moved=0;lx=e.clientX;ly=e.clientY;el.setPointerCapture(e.pointerId);box.style.cursor='grabbing'};
+ el.onpointermove=e=>{if(!o.drag)return;o.moved+=Math.abs(e.clientX-lx)+Math.abs(e.clientY-ly);o.th-=(e.clientX-lx)*.01;o.ph=Math.max(.4,Math.min(1.55,o.ph-(e.clientY-ly)*.008));lx=e.clientX;ly=e.clientY};
+ el.onpointerup=el.onpointercancel=e=>{const was=o.drag;o.drag=false;box.style.cursor='grab';if(was&&o.onclick&&o.moved<6)o.onclick(e)};
+ new IntersectionObserver(a=>{vis=a[0].isIntersecting}).observe(box);
+ addEventListener('resize',()=>{rn.setSize(w(),h());cam.aspect=w()/h();cam.updateProjectionMatrix()});
+ const tick=[];
+ (function loop(now){if(vis){if(o.auto&&!o.drag)o.th+=.004;cam.position.set(o.r*Math.sin(o.ph)*Math.sin(o.th),o.ty+o.r*Math.cos(o.ph),o.r*Math.sin(o.ph)*Math.cos(o.th));cam.lookAt(0,o.ty,0);tick.forEach(f=>f(now));rn.render(sc,cam)}requestAnimationFrame(loop)})(performance.now());
+ const tx=getComputedStyle(document.documentElement).getPropertyValue('--tx').trim()||'#0f2a33';
+ const lab=(a,b,x,y,z,s)=>{const c=document.createElement('canvas');c.width=320;c.height=b?120:70;const g=c.getContext('2d');g.textAlign='center';g.fillStyle=tx;g.font='bold 30px system-ui,sans-serif';g.fillText(a,160,42);if(b){g.font='26px system-ui,sans-serif';g.fillText(b,160,88)}const sp=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(c),transparent:true,depthTest:false}));sp.scale.set(s||3.2,(s||3.2)*c.height/320,1);sp.position.set(x,y,z);sc.add(sp);return sp};
+ return {T,sc,cam,rn,o,tick,el,lab}
+}
+
+/* ===== 3D India success map ===== */
+let in3a=false,in3b=false,i3sel=0;
+function init3a(){
+ if(in3a)return;in3a=true;const box=$('ic');
+ try{
+  if(!window.THREE)throw 0;
+  const G=mk3D(box,40),T=G.T,sc=G.sc,o=G.o;o.ph=.95;o.r=23;o.ty=0;o.th=0;
+  const s=.032,sh=new T.Shape();
+  IN.forEach((p,i)=>{const q=px(p[0],p[1]);i?sh.lineTo(q[0],-q[1]):sh.moveTo(q[0],-q[1])});
+  const map=new T.Mesh(new T.ExtrudeGeometry(sh,{depth:30,bevelEnabled:false}),new T.MeshLambertMaterial({color:0x059669}));
+  map.rotation.x=-Math.PI/2;map.scale.set(s,s,s);const cx=300*s,cz=315*s;map.position.set(-cx,0,-cz);sc.add(map);
+  const top=30*s,pins=[],rings=[];
+  MS.forEach((m,i)=>{const q=px(m.lo,m.la),X=q[0]*s-cx,Z=q[1]*s-cz;
+   const pn=new T.Mesh(new T.SphereGeometry(.32,20,16),new T.MeshLambertMaterial({color:0x0ea5e9}));pn.position.set(X,top+.4,Z);pn.userData.i=i;sc.add(pn);pins.push(pn);
+   const rg=new T.Mesh(new T.RingGeometry(.4,.55,28),new T.MeshBasicMaterial({color:0x38bdf8,transparent:true,opacity:.7,side:T.DoubleSide}));rg.rotation.x=-Math.PI/2;rg.position.set(X,top+.03,Z);sc.add(rg);rings.push(rg)});
+  function sel(i){i3sel=i;const m=MS[i];
+   pins.forEach((p,j)=>{p.material.color.set(j===i?0xf59e0b:0x0ea5e9);p.scale.setScalar(j===i?1.5:1)});
+   $('icd').innerHTML=`<div class="ui text-xs mu">📍 ${esc(m.s)}</div><h3 class="text-2xl font-bold">${esc(m.n)}</h3><div class="flex flex-wrap gap-2 my-2 ui text-xs"><span class="px-2 py-1 rounded-full" style="background:var(--em);color:var(--ink)">✅ Positive result</span><span class="px-2 py-1 rounded-full" style="background:var(--bd)">${esc(m.t)}</span></div><p class="font-semibold">${esc(m.h)}</p><p class="mu mt-1">${esc(m.r)}</p>`;
+   [...$('icl').children].forEach((b,j)=>b.setAttribute('aria-selected',j===i))}
+  MS.forEach((m,i)=>{const b=document.createElement('button');b.className='tab ui text-sm';b.textContent=m.n;b.onclick=()=>sel(i);$('icl').append(b)});
+  const ray=new T.Raycaster(),v=new T.Vector2();
+  o.onclick=e=>{const r=G.el.getBoundingClientRect();v.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1);ray.setFromCamera(v,G.cam);const hit=ray.intersectObjects(pins)[0];if(hit)sel(hit.object.userData.i)};
+  G.tick.push(now=>{if(!reduce)rings.forEach((r,i)=>{const k=1+.45*Math.sin(now/450+i);r.scale.set(k,k,k)})});
+  const b=$('irot');if(reduce){b.setAttribute('aria-pressed','false');b.textContent='▶ Auto-rotate'}
+  b.onclick=()=>{o.auto=!o.auto;b.setAttribute('aria-pressed',o.auto);b.textContent=(o.auto?'⏸':'▶')+' Auto-rotate'};
+  sel(0);
+ }catch(e){box.innerHTML='<p class="mu p-8 text-center">The 3D view is not available in this browser. Use the 2D map above.</p>'}
+}
+
+/* ===== 3D rain-to-recharge model ===== */
+let hOnM=true,hRain=true;
+function init3b(){
+ if(in3b)return;in3b=true;const box=$('hc');
+ try{
+  if(!window.THREE)throw 0;
+  const G=mk3D(box,40),T=G.T,sc=G.sc,o=G.o;o.r=19;o.ty=0;o.ph=1.2;o.th=.3;
+  const M=(c,x)=>new T.MeshLambertMaterial(Object.assign({color:c},x||{}));
+  const add=(m,x,y,z)=>{m.position.set(x,y,z);sc.add(m);return m};
+  add(new T.Mesh(new T.BoxGeometry(14,3.4,6),M(0x8b6b4a,{transparent:true,opacity:.5})),0,-1.7,0);
+  add(new T.Mesh(new T.BoxGeometry(14,.12,6),M(0x4ade80)),0,.06,0);
+  const aq=new T.Mesh(new T.BoxGeometry(13.6,1,5.6),M(0x0ea5e9,{transparent:true,opacity:.8}));sc.add(aq);
+  add(new T.Mesh(new T.BoxGeometry(2.4,1.8,2.4),M(0xe5e7eb)),-3.5,1.02,0);
+  const roof=add(new T.Mesh(new T.ConeGeometry(2,1,4),M(0xb45309)),-3.5,2.42,0);roof.rotation.y=Math.PI/4;
+  const tank=add(new T.Mesh(new T.CylinderGeometry(.55,.55,1.3,24),M(0x38bdf8)),0,.77,0);
+  const pit=add(new T.Mesh(new T.CylinderGeometry(.6,.6,1.8,24),M(0x6b7280)),3,-.9,0);
+  add(new T.Mesh(new T.CylinderGeometry(.08,.08,3.8,8),M(0x374151)),5.3,-1.4,0);
+  const PON=[[-3.5,2.4,0],[-2.3,1.3,0],[-.3,1.45,0],[0,.9,0],[0,.2,0],[1.2,.2,0],[3,.2,0],[3,-1.8,0],[3,-2.6,0]];
+  const POFF=[[-3.5,2.4,0],[-2.3,1.2,0],[-2,.15,0],[7.4,.15,0]];
+  const line=new T.Line(new T.BufferGeometry().setFromPoints(PON.map(p=>new T.Vector3(...p))),new T.LineBasicMaterial({color:0x0369a1}));sc.add(line);
+  const prep=P=>{let L=0;const c=[0];for(let i=1;i<P.length;i++){L+=Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1],P[i][2]-P[i-1][2]);c.push(L)}return {P,c,L}};
+  const A=prep(PON),B=prep(POFF);
+  const at=(Q,u)=>{const d=u*Q.L;let i=1;while(i<Q.c.length-1&&Q.c[i]<d)i++;const k=(d-Q.c[i-1])/(Q.c[i]-Q.c[i-1]||1),a=Q.P[i-1],b=Q.P[i];return [a[0]+(b[0]-a[0])*k,a[1]+(b[1]-a[1])*k,a[2]+(b[2]-a[2])*k]};
+  const NF=40,fg=new T.BufferGeometry();fg.setAttribute('position',new T.BufferAttribute(new Float32Array(NF*3),3));
+  const fm=new T.PointsMaterial({color:0x0369a1,size:.28});const fl=new T.Points(fg,fm);fl.frustumCulled=false;sc.add(fl);
+  const NR=260,rg=new T.BufferGeometry(),rp=new Float32Array(NR*3),rs=[];
+  for(let i=0;i<NR;i++){rp[i*3]=(Math.random()-.5)*13;rp[i*3+1]=Math.random()*9;rp[i*3+2]=(Math.random()-.5)*5.4;rs.push(.07+Math.random()*.08)}
+  rg.setAttribute('position',new T.BufferAttribute(rp,3));const rain=new T.Points(rg,new T.PointsMaterial({color:0x60a5fa,size:.13}));rain.frustumCulled=false;sc.add(rain);
+  G.lab('Rain',null,-5.5,7,0,2.2);G.lab('Roof',null,-3.5,3.7,0,2);G.lab('Tank',null,0,2.2,0,2);G.lab('Recharge pit',null,3,1,0,2.8);G.lab('Borewell',null,5.3,1.2,0,2.4);G.lab('Underground water',null,-4,-3.9,0,4);
+  let L=1.15;const LO=.3,HI=1.9,tgt=()=>hOnM?(hRain?.0010:-.0003):(hRain?-.0004:-.0009);
+  function ui(){const p=Math.round((L-LO)/(HI-LO)*100);$('hs1').textContent=p+'%';$('hs2').textContent=hOnM?(hRain?'~70%':'No rain'):(hRain?'~10%':'No rain');
+   const d=p<18?'Running dry':p<40?'Low':'Healthy';$('hs3').textContent=d;$('hs3').style.color=p<18?'var(--wn)':p<40?'#d97706':'var(--em)'}
+  function setM(){tank.visible=pit.visible=line.visible=hOnM;fm.color.set(hOnM?0x0369a1:0xb45309);
+   $('hOn').className='btn !py-2 text-sm'+(hOnM?' p':'');$('hOff').className='btn !py-2 text-sm'+(hOnM?'':' w');$('hOn').setAttribute('aria-pressed',hOnM);$('hOff').setAttribute('aria-pressed',!hOnM);
+   $('hRain').textContent='🌧️ Monsoon rain: '+(hRain?'on':'off');$('hRain').setAttribute('aria-pressed',hRain);rain.visible=hRain;
+   if(reduce){L=hOnM?1.7:.45;aq.scale.y=L;aq.position.y=-3.4+L/2;ui()}}
+  $('hOn').onclick=()=>{hOnM=true;setM()};$('hOff').onclick=()=>{hOnM=false;setM()};$('hRain').onclick=()=>{hRain=!hRain;setM()};
+  let fr=0;
+  G.tick.push(now=>{
+   if(!reduce){
+    const q=rain.geometry.attributes.position.array;for(let i=0;i<NR;i++){q[i*3+1]-=rs[i];if(q[i*3+1]<.15)q[i*3+1]=9}rain.geometry.attributes.position.needsUpdate=true;
+    const f=fl.geometry.attributes.position.array,Q=hOnM?A:B;
+    for(let i=0;i<NF;i++){const u=((now/(hOnM?4200:3000))+i/NF)%1,c=at(Q,hRain?u:1);f[i*3]=c[0];f[i*3+1]=c[1];f[i*3+2]=c[2]}fl.geometry.attributes.position.needsUpdate=true;fl.visible=hRain;
+    L=Math.max(LO,Math.min(HI,L+tgt()));aq.scale.y=L;aq.position.y=-3.4+L/2;if(++fr%10===0)ui()}});
+  aq.scale.y=L;aq.position.y=-3.4+L/2;setM();ui();
+ }catch(e){box.innerHTML='<p class="mu p-8 text-center">The 3D view is not available in this browser.</p>'}
+}
+$('t3a').onclick=()=>{$('p3a').classList.remove('hid');$('p3b').classList.add('hid');$('t3a').setAttribute('aria-selected',true);$('t3b').setAttribute('aria-selected',false);init3a()};
+$('t3b').onclick=()=>{$('p3b').classList.remove('hid');$('p3a').classList.add('hid');$('t3b').setAttribute('aria-selected',true);$('t3a').setAttribute('aria-selected',false);init3b()};
+init3a();
+
+/* Bhim AI assistant */
+const SYS="You are Bhim, the friendly AI assistant of AquaGuard, a smart water conservation website with a water footprint quiz, a simulated live IoT dashboard, a community leak reporter, a pledge, a limitations section, an awareness campaign section (pillars, 10 actions, poster maker, plan), a 3D India conservation map, a 3D rain-to-recharge model and a pitch guide. Answer questions about saving water, leaks, rainwater harvesting and the AquaGuard project in under 90 words, plain text, no markdown. Reply in the user's language (English or Hindi). Politely steer off-topic questions back to water. Sensor data on the site is simulated.";
+const KB=[
+ [/^(hi|hello|hey|namaste|नमस्ते)/i,'Namaste! I’m Bhim. Ask me how to save water, find leaks or use this site.'],
+ [/who are you|your name|bhim|तुम कौन/i,'I’m Bhim, the AquaGuard assistant. I help with water-saving tips, leak checks and questions about this project.'],
+ [/campaign|awareness|poster|abhiyan|अभियान/i,'The Campaign section has four ideas, a 10-action checklist, a poster maker you can download, a share message and a 4-week plan for schools, societies, villages and workplaces.'],
+ [/3d|model|aquifer|recharge pit|borewell dry|groundwater/i,'Open “Water conservation in India, in 3D”. Switch to the Rain to recharge model and toggle harvesting on or off: with a tank and recharge pit the underground level rises, without them rain runs off and a borewell can run dry.'],
+ [/leak|drip|tap|रिसाव|लीक|टपक/i,'Leak check: turn off every tap, note your water meter, wait 30 minutes. If it moved, you have a leak. For toilets, add food colour to the cistern: colour in the bowl means a leak. Report it in the Community section.'],
+ [/shower|bath|नहा/i,'Keep showers to 5–7 minutes, use a bucket for baths and fit a low-flow shower head. This can save 40+ litres per shower.'],
+ [/rain|harvest|बारिश/i,'Rainwater harvesting: collect roof runoff through a filter into a tank or recharge pit. Use it for gardens, cleaning and flushing. Check local rules for subsidies.'],
+ [/garden|plant|पौधे|बगीचा/i,'Water plants early morning or evening, use drip or a watering can, mulch the soil and reuse kitchen rinse water.'],
+ [/quiz|score|footprint/i,'Take the quiz in the Water Footprint Quiz section. Six questions give you a score out of 100, tailored tips and a shareable badge.'],
+ [/sensor|iot|dashboard|tank|flow/i,'The IoT panel is simulated: it shows tank level, flow rate and leak alerts. Press “Simulate pipe leak” to watch detection and auto shut-off work.'],
+ [/pledge/i,'Scroll to “Take the pledge”, enter your name and tick the box to get your pledge certificate.'],
+ [/limit|challenge|problem|privacy/i,'See the Challenges section: it covers hardware, rural connectivity, behaviour, privacy, accuracy, cost, power and the prototype’s scope.'],
+ [/aquaguard|project|what is|usp|hackathon/i,'AquaGuard combines IoT leak detection, a behaviour quiz and community reporting to cut water waste. Open the Pitch Guide for the USP, scalability, tech stack and impact.'],
+ [/save|tips|conserv|बचत|बचा/i,'Quick wins: fix leaks, turn the tap off while brushing, run full loads only, use a bucket for car washing and reuse RO reject water for cleaning.']
+];
+const bh={hist:[],busy:false,sample:undefined};
+function bAdd(t,c){const d=document.createElement('div');d.className='bm '+c;d.textContent=t;$('bmsgs').append(d);$('bmsgs').scrollTop=1e9;return d}
+async function bSample(){if(bh.sample!==undefined)return bh.sample;try{bh.sample=window.claude&&claude.use?await claude.use('sample'):null}catch(e){bh.sample=null}return bh.sample}
+async function bSend(t){
+ t=t.trim();if(!t||bh.busy)return;bh.busy=true;bAdd(t,'u');$('bi').value='';
+ const el=bAdd('Thinking…','b');bh.hist.push({role:'user',content:t});
+ let out=null;const s=await bSample();
+ if(s){try{
+  const m=bh.hist.slice(-7).map((x,i)=>i?x:{role:x.role,content:SYS+'\n\nUser: '+x.content});
+  const r=await s(m,{cache:false,modelTier:'quick',onText:({text})=>{el.textContent=text;$('bmsgs').scrollTop=1e9}});
+  out=(r&&r.text||'').trim()||null}catch(e){out=null;if(e&&e.code==='not_granted')bh.sample=null}}
+ if(!out){const k=KB.find(x=>x[0].test(t));out=k?k[1]:'I’m not sure about that. Try asking about leaks, saving water, rainwater harvesting or the AquaGuard quiz and dashboard.'}
+ el.textContent=out;bh.hist.push({role:'assistant',content:out});$('bmsgs').scrollTop=1e9;bh.busy=false;bSpeak(out)}
+function bToggle(v){const p=$('bhim');const o=v===undefined?!p.classList.contains('on'):v;p.classList.toggle('on',o);$('bhimBtn').setAttribute('aria-expanded',o);if(o){if(!$('bmsgs').children.length)bAdd('Namaste! I’m Bhim, your AquaGuard water assistant. Ask me about saving water, finding leaks or this project. You can write in English or Hindi.','b');$('bi').focus()}}
+['How do I find a leak?','Water saving tips','Rainwater harvesting','What is AquaGuard?'].forEach(q=>{const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=q;b.onclick=()=>bSend(q);$('bchips').append(b)});
+$('bhimBtn').onclick=()=>bToggle();$('bx').onclick=()=>bToggle(false);
+$('bf').onsubmit=e=>{e.preventDefault();bSend($('bi').value)};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')bToggle(false)});
+
+/* Bhim voice (speech input and spoken replies) */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition,TTS='speechSynthesis' in window;
+let vLang='en-IN',vOn=false,vRec=null,vLis=false;
+const vPh=$('bi').placeholder;
+function vStop(){if(TTS)speechSynthesis.cancel()}
+function vSpk(){$('bsp').textContent=vOn?'🔊':'🔇';$('bsp').setAttribute('aria-pressed',vOn);$('bsp').title=vOn?'Replies are read aloud (tap to mute)':'Read replies aloud';if(!vOn)vStop()}
+function bSpeak(t){
+ if(!vOn||!TTS||!t)return;vStop();
+ const lang=/[\u0900-\u097F]/.test(t)?'hi-IN':'en-IN';
+ const u=new SpeechSynthesisUtterance(t.replace(/\p{Extended_Pictographic}/gu,''));u.lang=lang;
+ const v=speechSynthesis.getVoices(),m=v.find(x=>x.lang.replace('_','-')===lang)||v.find(x=>x.lang.slice(0,2)===lang.slice(0,2));if(m)u.voice=m;
+ speechSynthesis.speak(u)}
+function vMic(){
+ if(vLis){vRec&&vRec.stop();return}
+ vStop();let fin='';
+ vRec=new SR();vRec.lang=vLang;vRec.interimResults=true;
+ vRec.onstart=()=>{vLis=true;$('bmic').textContent='\u23f9';$('bmic').setAttribute('aria-pressed','true');$('bi').placeholder='Listening…'};
+ vRec.onresult=e=>{let t='';for(const r of e.results)t+=r[0].transcript;fin=t;$('bi').value=t};
+ vRec.onerror=e=>{fin='';const m={'not-allowed':'Microphone is blocked here. Allow mic access in your browser, or type instead.','service-not-allowed':'Microphone is blocked here. Allow mic access in your browser, or type instead.','no-speech':'I did not hear anything. Tap the mic and try again.','audio-capture':'No microphone found.','network':'Voice input needs an internet connection.'};bAdd(m[e.error]||'Voice input failed. You can type instead.','b')};
+ vRec.onend=()=>{vLis=false;$('bmic').textContent='🎤';$('bmic').setAttribute('aria-pressed','false');$('bi').placeholder=vPh;if(fin.trim()){vOn=true;vSpk();bSend(fin)}};
+ try{vRec.start()}catch(e){vLis=false}}
+if(!SR){$('bmic').style.display='none';$('blang').style.display='none'}else{
+ $('bmic').onclick=vMic;
+ $('blang').onclick=()=>{vLang=vLang==='en-IN'?'hi-IN':'en-IN';$('blang').textContent=vLang==='en-IN'?'EN':'\u0939\u093f';$('blang').setAttribute('aria-label','Voice language: '+(vLang==='en-IN'?'English':'Hindi'))}}
+if(!TTS)$('bsp').style.display='none';else{$('bsp').onclick=()=>{vOn=!vOn;vSpk();if(vOn)bSpeak('Voice replies are on.')}}
+$('bx').addEventListener('click',vStop);
+$('bhimBtn').addEventListener('click',()=>{if(!$('bhim').classList.contains('on')){vStop();vRec&&vLis&&vRec.stop()}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')vStop()});
+
+/* Modal */
+let lastF=null;
+function openModal(){lastF=document.activeElement;$('modal').classList.add('on')}
+function closeModal(){$('modal').classList.remove('on');lastF&&lastF.focus&&lastF.focus()}
+$('modal').onclick=e=>{if(e.target.id==='modal')closeModal()};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+</script>
+</body>
+</html>
